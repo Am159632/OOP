@@ -1,0 +1,72 @@
+.root {
+    -fx-background-color: #050814;
+}
+
+.vbox, .hbox, .border-pane {
+    -fx-background-color: transparent;
+}
+
+.combo-box, .text-field {
+    -fx-background-color: #0e1424;
+    -fx-text-fill: #e0e6ff;
+    -fx-border-color: #1f2a44;
+    -fx-border-radius: 6;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #0e1424;
+}
+
+.text-field {
+    -fx-prompt-text-fill: #6c7aa0;
+}
+
+.button {
+    -fx-background-color: #1b2540;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+}
+
+.button:hover {
+    -fx-background-color: #27345c;
+}
+
+.radio-button {
+    -fx-text-fill: white;
+}
+
+.radio-button .radio {
+    -fx-background-color: #1b2540;
+}
+
+.list-view {
+    -fx-background-color: #0b1120;
+    -fx-control-inner-background: #0b1120;
+    -fx-border-color: #1f2a44;
+    -fx-text-fill: white;
+}
+
+.list-cell {
+    -fx-text-fill: white;
+}
+
+.list-cell:selected {
+    -fx-background-color: #24356b;
+}
+
+.label {
+    -fx-text-fill: #e0e6ff;
+}
+
+.section-title {
+    -fx-text-fill: #6ec1ff;
+    -fx-font-weight: bold;
+}
+
+.check-box {
+    -fx-text-fill: white;
+}
