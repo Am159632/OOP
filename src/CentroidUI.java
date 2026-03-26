@@ -7,15 +7,13 @@ import javafx.scene.layout.VBox;
 import java.util.Arrays;
 import java.util.List;
 
-public class CentroidCommand<T> implements SpaceCommand<T> {
+public class CentroidUI<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
     private DistanceStrategy strategy;
     private VBox uiContainer;
     private TextField txtGroup;
 
-    private String savedInput = "";
-
-    public CentroidCommand(AbstractAnalyzableSpace<T> space) {
+    public CentroidUI(AbstractAnalyzableSpace<T> space) {
         this.space = space;
         buildUI();
     }
@@ -42,34 +40,11 @@ public class CentroidCommand<T> implements SpaceCommand<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public String execute(SpaceVisualizer<T> visualizer) {
-        if (strategy == null) return "Error: Distance strategy not set.";
-        try {
-            String input = txtGroup.getText();
-            if (input != null && !input.isEmpty()) savedInput = input;
-
-            txtGroup.setText(savedInput);
-
-            List<T> group = (List<T>) Arrays.asList(savedInput.split("\\s*,\\s*"));
-            CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
-            T result = space.executeFunction(centroidFunc, strategy);
-
-            visualizer.clearHighlights();
-            if (result != null) {
-                visualizer.highlightItems(group, "#ADD8E6");
-                visualizer.highlightItems(List.of(result), "#FF0000");
-                return "Centroid of the group is: " + result;
-            }
-            return "No centroid found.";
-        } catch (Exception e) {
-            return "Error executing Centroid. Check inputs.";
-        }
-    }
-
-    @Override
-    public void undo(SpaceVisualizer<T> visualizer) {
-        visualizer.clearHighlights();
-        txtGroup.clear();
+    public AppAction<T> generateAction(SpaceVisualizer<T> visualizer) {
+        String input = txtGroup.getText();
+        if (input == null || input.isEmpty()) throw new IllegalArgumentException("Empty Input");
+        List<T> group = (List<T>) Arrays.asList(input.split("\\s*,\\s*"));
+        return new CentroidAction<>(space, visualizer, strategy, group);
     }
 
     @Override

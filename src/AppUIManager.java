@@ -24,8 +24,8 @@ public class AppUIManager<T> {
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
 
-    private Stack<SpaceCommand<T>> undoStack = new Stack<>();
-    private Stack<SpaceCommand<T>> redoStack = new Stack<>();
+    private Stack<AppAction<T>> undoStack = new Stack<>();
+    private Stack<AppAction<T>> redoStack = new Stack<>();
 
     public AppUIManager(AbstractAnalyzableSpace<T> space, DistanceStrategy defaultStrategy, List<T> vocabulary) {
         this.space = space;
@@ -46,16 +46,14 @@ public class AppUIManager<T> {
         strategies.put("Cosine", new CosineStrategy());
 
         availableCommands = new ArrayList<>();
-        availableCommands.add(new KnnCommand<>(space, vocabulary));
-        availableCommands.add(new DistanceCommand<>(space, vocabulary));
-        availableCommands.add(new AnalogyCommand<>(space, vocabulary));
-        availableCommands.add(new CentroidCommand<>(space));
-        availableCommands.add(new SemanticLineCommand<>(space, vocabulary));
+        availableCommands.add(new KnnUI<>(space, vocabulary));
+        availableCommands.add(new DistanceUI<>(space, vocabulary));
+        availableCommands.add(new AnalogyUI<>(space, vocabulary));
+        availableCommands.add(new CentroidUI<>(space));
+        availableCommands.add(new SemanticLineUI<>(space, vocabulary));
 
         buildSideMenu();
         rootPane.setCenter(centerViewPane);
-
-        // מריצים PCA פעם אחת בלבד בהתחלה!
         executePca();
 
         multiVisualizer.setOnNodeClicked(item -> {
@@ -87,7 +85,6 @@ public class AppUIManager<T> {
             boolean is3D = (selected instanceof Space3DVisualizer);
             pcaZ.setVisible(is3D);
             pcaZ.setManaged(is3D);
-            // הסרנו את הקריאה ל-executePca() מכאן כדי לא למחוק צבעים בהחלפת מסך!
         });
 
         VBox pcaSection = buildPcaSection();
@@ -150,9 +147,15 @@ public class AppUIManager<T> {
         btnFunc.setMaxWidth(Double.MAX_VALUE);
         btnFunc.setOnAction(e -> {
             if (activeCommand != null) {
-                txtConsole.setText(activeCommand.execute(multiVisualizer));
-                undoStack.push(activeCommand);
-                redoStack.clear();
+                try {
+                    AppAction<T> action = activeCommand.generateAction(multiVisualizer);
+                    String res = action.execute();
+                    txtConsole.setText(res);
+                    undoStack.push(action);
+                    redoStack.clear();
+                } catch (Exception ex) {
+                    txtConsole.setText("Error: Missing or invalid inputs.");
+                }
             }
         });
 
@@ -181,16 +184,14 @@ public class AppUIManager<T> {
         HBox.setHgrow(btnUndo, Priority.ALWAYS);
         btnUndo.setOnAction(e -> {
             if (!undoStack.isEmpty()) {
-                // 1. מוציאים את הפקודה האחרונה ומבטלים אותה
-                SpaceCommand<T> cmd = undoStack.pop();
-                cmd.undo(multiVisualizer);
-                redoStack.push(cmd);
+                AppAction<T> action = undoStack.pop();
+                action.undo();
+                redoStack.push(action);
 
-                // 2. בודקים אם יש פקודה קודמת להציג
                 if (!undoStack.isEmpty()) {
-                    SpaceCommand<T> prevCmd = undoStack.peek();
-                    actionBox.setValue(prevCmd.getName()); // מחזיר את הקומבו לפונקציה הקודמת!
-                    txtConsole.setText(prevCmd.execute(multiVisualizer)); // מריץ אותה מחדש בשקט כדי לצבוע
+                    AppAction<T> prevAction = undoStack.peek();
+                    actionBox.setValue(prevAction.getName());
+                    txtConsole.setText(prevAction.execute());
                 } else {
                     multiVisualizer.clearHighlights();
                     txtConsole.setText("Reverted to clean space.");
@@ -203,10 +204,10 @@ public class AppUIManager<T> {
         HBox.setHgrow(btnRedo, Priority.ALWAYS);
         btnRedo.setOnAction(e -> {
             if (!redoStack.isEmpty()) {
-                SpaceCommand<T> cmd = redoStack.pop();
-                actionBox.setValue(cmd.getName()); // מחליף קומבו לפונקציה המשוחזרת
-                txtConsole.setText(cmd.execute(multiVisualizer));
-                undoStack.push(cmd);
+                AppAction<T> action = redoStack.pop();
+                actionBox.setValue(action.getName());
+                txtConsole.setText(action.execute());
+                undoStack.push(action);
             }
         });
 

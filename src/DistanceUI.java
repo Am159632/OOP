@@ -8,16 +8,14 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DistanceCommand<T> implements SpaceCommand<T> {
+public class DistanceUI<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
     private DistanceStrategy strategy;
     private List<T> vocabulary;
     private VBox uiContainer;
     private ComboBox<T> comboW1, comboW2;
 
-    private T savedW1, savedW2;
-
-    public DistanceCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
+    public DistanceUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
         buildUI();
@@ -74,40 +72,16 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
     public void setStrategy(DistanceStrategy strategy) { this.strategy = strategy; }
 
     @Override
-    public String execute(SpaceVisualizer<T> visualizer) {
-        if (strategy == null) return "Error: Distance strategy not set.";
-        try {
-            String t1 = comboW1.getEditor().getText();
-            if (t1 != null && !t1.isEmpty()) savedW1 = (T) t1;
-            else if (comboW1.getValue() != null) savedW1 = comboW1.getValue();
+    public AppAction<T> generateAction(SpaceVisualizer<T> visualizer) {
+        String t1Text = comboW1.getEditor().getText();
+        T w1 = (t1Text != null && !t1Text.isEmpty()) ? (T) t1Text : comboW1.getValue();
 
-            String t2 = comboW2.getEditor().getText();
-            if (t2 != null && !t2.isEmpty()) savedW2 = (T) t2;
-            else if (comboW2.getValue() != null) savedW2 = comboW2.getValue();
+        String t2Text = comboW2.getEditor().getText();
+        T w2 = (t2Text != null && !t2Text.isEmpty()) ? (T) t2Text : comboW2.getValue();
 
-            if (savedW1 != null) comboW1.getEditor().setText(savedW1.toString());
-            if (savedW2 != null) comboW2.getEditor().setText(savedW2.toString());
+        if (w1 == null || w2 == null) throw new IllegalArgumentException("Empty Inputs");
 
-            DistanceFunction<T> func = new DistanceFunction<>("FULL", savedW1, savedW2);
-            double dist = space.executeFunction(func, strategy);
-
-            visualizer.clearHighlights();
-            visualizer.highlightItems(List.of(savedW1), "#FFD700");
-            visualizer.highlightItems(List.of(savedW2), "#FF69B4");
-
-            return "Distance between '" + savedW1 + "' and '" + savedW2 + "': " + String.format("%.5f", dist);
-        } catch (Exception e) {
-            return "Error calculating distance. Check inputs.";
-        }
-    }
-
-    @Override
-    public void undo(SpaceVisualizer<T> visualizer) {
-        visualizer.clearHighlights();
-        comboW1.getEditor().clear();
-        comboW2.getEditor().clear();
-        comboW1.setValue(null);
-        comboW2.setValue(null);
+        return new DistanceAction<>(space, visualizer, strategy, w1, w2);
     }
 
     @Override

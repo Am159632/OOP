@@ -5,6 +5,5 @@ public interface SpaceCommand<T> {
     Node getUI();
     void setStrategy(DistanceStrategy strategy);
     void onNodeClicked(T item);
-    String execute(SpaceVisualizer<T> visualizer);
-    void undo(SpaceVisualizer<T> visualizer);
+    AppAction<T> generateAction(SpaceVisualizer<T> visualizer);
 }

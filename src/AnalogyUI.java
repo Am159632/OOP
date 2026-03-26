@@ -8,16 +8,14 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AnalogyCommand<T> implements SpaceCommand<T> {
+public class AnalogyUI<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
     private DistanceStrategy strategy;
     private List<T> vocabulary;
     private VBox uiContainer;
     private ComboBox<T> comboW1, comboW2, comboW3;
 
-    private T savedW1, savedW2, savedW3;
-
-    public AnalogyCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
+    public AnalogyUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
         buildUI();
@@ -73,49 +71,14 @@ public class AnalogyCommand<T> implements SpaceCommand<T> {
     public void setStrategy(DistanceStrategy strategy) { this.strategy = strategy; }
 
     @Override
-    public String execute(SpaceVisualizer<T> visualizer) {
-        if (strategy == null) return "Error: Distance strategy not set.";
-        try {
-            String t1 = comboW1.getEditor().getText();
-            if (t1 != null && !t1.isEmpty()) savedW1 = (T) t1;
-            else if (comboW1.getValue() != null) savedW1 = comboW1.getValue();
+    public AppAction<T> generateAction(SpaceVisualizer<T> visualizer) {
+        String t1 = comboW1.getEditor().getText(); T w1 = (t1 != null && !t1.isEmpty()) ? (T) t1 : comboW1.getValue();
+        String t2 = comboW2.getEditor().getText(); T w2 = (t2 != null && !t2.isEmpty()) ? (T) t2 : comboW2.getValue();
+        String t3 = comboW3.getEditor().getText(); T w3 = (t3 != null && !t3.isEmpty()) ? (T) t3 : comboW3.getValue();
 
-            String t2 = comboW2.getEditor().getText();
-            if (t2 != null && !t2.isEmpty()) savedW2 = (T) t2;
-            else if (comboW2.getValue() != null) savedW2 = comboW2.getValue();
+        if (w1 == null || w2 == null || w3 == null) throw new IllegalArgumentException("Empty Inputs");
 
-            String t3 = comboW3.getEditor().getText();
-            if (t3 != null && !t3.isEmpty()) savedW3 = (T) t3;
-            else if (comboW3.getValue() != null) savedW3 = comboW3.getValue();
-
-            if (savedW1 != null) comboW1.getEditor().setText(savedW1.toString());
-            if (savedW2 != null) comboW2.getEditor().setText(savedW2.toString());
-            if (savedW3 != null) comboW3.getEditor().setText(savedW3.toString());
-
-            AnalogyFunction<T> analogyFunc = new AnalogyFunction<>("FULL", savedW1, savedW2, savedW3);
-            T result = space.executeFunction(analogyFunc, strategy);
-
-            visualizer.clearHighlights();
-            if (result != null) {
-                visualizer.highlightItems(List.of(savedW1, savedW2, savedW3), "#FFA500");
-                visualizer.highlightItems(List.of(result), "#FFD700");
-                return savedW1 + " - " + savedW2 + " + " + savedW3 + " = " + result;
-            }
-            return "No analogy found.";
-        } catch (Exception e) {
-            return "Error executing Analogy. Check inputs.";
-        }
-    }
-
-    @Override
-    public void undo(SpaceVisualizer<T> visualizer) {
-        visualizer.clearHighlights();
-        comboW1.getEditor().clear();
-        comboW2.getEditor().clear();
-        comboW3.getEditor().clear();
-        comboW1.setValue(null);
-        comboW2.setValue(null);
-        comboW3.setValue(null);
+        return new AnalogyAction<>(space, visualizer, strategy, w1, w2, w3);
     }
 
     @Override
