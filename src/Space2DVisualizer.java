@@ -26,8 +26,8 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         double x = PADDING + normX * (WIDTH - 2 * PADDING);
         double y = HEIGHT - (PADDING + normY * (HEIGHT - 2 * PADDING));
 
-        Circle circle = new Circle(x, y, 6);
-        circle.setFill(Color.web(getDefaultColor()));
+        Circle circle = new Circle(x, y, 3);
+        circle.setFill(Color.web(getDefaultColor(), 0.6));
 
         circle.setOnMouseEntered(e -> {
             hoverLabel.setText(id.toString());
@@ -35,19 +35,16 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
             hoverLabel.setLayoutY(y - 25);
             hoverLabel.setVisible(true);
             hoverLabel.toFront();
-            circle.setStroke(Color.WHITE);
-            circle.setStrokeWidth(2);
+            circle.setFill(Color.web(getDefaultColor(), 1.0));
+            circle.setRadius(5);
         });
 
         circle.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
-            circle.setStroke(null);
-        });
-
-        circle.setOnMouseClicked(e -> {
-            if (onNodeClickedListener != null) {
-                onNodeClickedListener.accept(id);
+            if (!currentlyHighlighted.contains(id)) {
+                circle.setFill(Color.web(getDefaultColor(), 0.6));
             }
+            circle.setRadius(3);
         });
 
         return circle;
@@ -57,13 +54,16 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     protected void addShapeToScene(Circle shape) { pane.getChildren().add(shape); }
 
     @Override
-    protected void applyColor(Circle shape, String colorHex) { shape.setFill(Color.web(colorHex)); }
+    protected void applyColor(Circle shape, String colorHex) {
+        shape.setFill(Color.web(colorHex, 1.0));
+        shape.setRadius(5);
+    }
 
     @Override
-    protected String getDefaultColor() { return "#1f2a44"; }
+    protected String getDefaultColor() { return "#4a90e2"; }
 
     @Override
-    protected void clearScene() {
+    public void clearScene() {
         pane.getChildren().clear();
         pane.getChildren().add(hoverLabel);
     }

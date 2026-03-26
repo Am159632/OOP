@@ -8,5 +8,7 @@ public interface SpaceVisualizer<T> {
     void clearHighlights();
     void clearSpace();
     Node getVisualNode();
-    void setOnNodeClicked(Consumer<T> listener);
+    void clearScene();
+    void drawNode(T id, double normX, double normY, double normZ);
+    void setOnNodeClicked(Consumer<T> listener); // הוחזר בשביל הלחיצות!
 }

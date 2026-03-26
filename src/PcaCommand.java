@@ -1,37 +1,76 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
-public class PcaCommand<T> implements SpaceCommand<T> {
+public class PcaCommand<T> {
     private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
-    private int dimX, dimY, dimZ;
+    private int pcX, pcY, pcZ; // הגרפיקה נמחקה מפה!
 
-    public PcaCommand(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, int dimX, int dimY, int dimZ) {
-        this.space = space; this.visualizer = visualizer;
-        this.dimX = dimX; this.dimY = dimY; this.dimZ = dimZ;
+    // הגרפיקה נמחקה גם מהבנאי!
+    public PcaCommand(AbstractAnalyzableSpace<T> space, int pcX, int pcY, int pcZ) {
+        this.space = space;
+        this.pcX = pcX;
+        this.pcY = pcY;
+        this.pcZ = pcZ;
     }
 
-    @Override
-    public String execute() {
-        Set<T> items = space.getItems("PCA");
-        List<PointData<T>> points = new ArrayList<>();
+    // הזרקת התלויות הגאונית שלך: מעבירים את הויזואליזר ישר לביצוע
+    public String execute(SpaceVisualizer<T> visualizer) {
+        try {
+            visualizer.clearScene();
 
-        for (T item : items) {
-            double[] fullVec = space.getVector("PCA", item);
-            if (fullVec != null && fullVec.length > 0) {
-                int len = fullVec.length;
-                // מודולו שומר עלינו מקריסה אם המשתמש הכניס מספר גדול מדי
-                double x = fullVec[Math.abs(dimX) % len];
-                double y = fullVec[Math.abs(dimY) % len];
-                double z = fullVec[Math.abs(dimZ) % len];
-                points.add(new PointData<>(item, new double[]{x, y, z}));
+            Set<T> items = space.getItems("PCA");
+            if (items == null || items.isEmpty()) return "No items found.";
+
+            // 1. מציאת גודל המערך (המימד) כדי שנוכל לעשות שארית חלוקה
+            int dim = 0;
+            for (T item : items) {
+                double[] vector = space.getVector("PCA", item);
+                if (vector != null && vector.length > 0) {
+                    dim = vector.length;
+                    break;
+                }
             }
-        }
-        visualizer.drawSpace(points);
-        return "מרחב ה-PCA נטען בהצלחה! צוירו " + points.size() + " נקודות למסך.";
-    }
+            if (dim == 0) return "Error: Vectors are empty or invalid.";
 
-    @Override
-    public void undo() { visualizer.clearSpace(); }
+            // 2. הפעלת מודולו (שארית חלוקה) על הצירים
+            pcX = (pcX % dim + dim) % dim;
+            pcY = (pcY % dim + dim) % dim;
+
+            boolean is2D = (pcZ == Integer.MIN_VALUE);
+
+            if (!is2D) {
+                pcZ = (pcZ % dim + dim) % dim;
+            }
+
+            double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE;
+            double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+            double minZ = Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+
+            for (T item : items) {
+                double[] vector = space.getVector("PCA", item);
+                if (vector != null && vector.length >= dim) {
+                    minX = Math.min(minX, vector[pcX]); maxX = Math.max(maxX, vector[pcX]);
+                    minY = Math.min(minY, vector[pcY]); maxY = Math.max(maxY, vector[pcY]);
+                    if (pcZ >= 0) { minZ = Math.min(minZ, vector[pcZ]); maxZ = Math.max(maxZ, vector[pcZ]); }
+                }
+            }
+
+            for (T item : items) {
+                double[] vector = space.getVector("PCA", item);
+                if (vector != null && vector.length >= dim) {
+                    double normX = (maxX == minX) ? 0.5 : (vector[pcX] - minX) / (maxX - minX);
+                    double normY = (maxY == minY) ? 0.5 : (vector[pcY] - minY) / (maxY - minY);
+                    double normZ = (!is2D) ? ((maxZ == minZ) ? 0.5 : (vector[pcZ] - minZ) / (maxZ - minZ)) : 0.5;
+
+                    visualizer.drawNode(item, normX, normY, normZ);
+                }
+            }
+
+            String zText = (pcZ >= 0) ? (", Z=" + pcZ) : "";
+            return "PCA Space loaded: X=" + pcX + ", Y=" + pcY + zText;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        }
+    }
 }

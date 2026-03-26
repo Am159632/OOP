@@ -6,16 +6,18 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractSpaceVisualizer<T, V extends Node> implements SpaceVisualizer<T> {
+
     protected Map<T, V> nodesMap = new HashMap<>();
     protected List<T> currentlyHighlighted = new ArrayList<>();
-    protected Consumer<T> onNodeClickedListener;
+
+
+    private Consumer<T> onNodeClickedListener;
 
     @Override
     public void setOnNodeClicked(Consumer<T> listener) {
         this.onNodeClickedListener = listener;
     }
 
-    @Override
     public void drawSpace(List<PointData<T>> points) {
         clearSpace();
         if (points == null || points.isEmpty()) return;
@@ -29,10 +31,23 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             double normY = coords.length > 1 ? ((maxs[1] == mins[1]) ? 0.5 : (coords[1] - mins[1]) / (maxs[1] - mins[1])) : 0.5;
             double normZ = coords.length > 2 ? ((maxs[2] == mins[2]) ? 0.5 : (coords[2] - mins[2]) / (maxs[2] - mins[2])) : 0.5;
 
-            V visualShape = createShape(p.getId(), normX, normY, normZ);
-            nodesMap.put(p.getId(), visualShape);
-            addShapeToScene(visualShape);
+            drawNode(p.getId(), normX, normY, normZ); // עכשיו זה משתמש בפונקציה האחת ששומרת קליקים!
         }
+    }
+
+    @Override
+    public final void drawNode(T id, double normX, double normY, double normZ) {
+        V shape = createShape(id, normX, normY, normZ);
+
+
+        shape.setOnMouseClicked(e -> {
+            if (onNodeClickedListener != null) {
+                onNodeClickedListener.accept(id);
+            }
+        });
+
+        addShapeToScene(shape);
+        nodesMap.put(id, shape);
     }
 
     @Override
@@ -41,7 +56,9 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             V shape = nodesMap.get(item);
             if (shape != null) {
                 applyColor(shape, colorHex);
-                currentlyHighlighted.add(item);
+                if (!currentlyHighlighted.contains(item)) {
+                    currentlyHighlighted.add(item);
+                }
             }
         }
     }
@@ -55,7 +72,6 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
         currentlyHighlighted.clear();
     }
 
-    @Override
     public void clearSpace() {
         nodesMap.clear();
         currentlyHighlighted.clear();
@@ -90,5 +106,7 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     protected abstract void addShapeToScene(V shape);
     protected abstract void applyColor(V shape, String colorHex);
     protected abstract String getDefaultColor();
-    protected abstract void clearScene();
+
+    public abstract void clearScene();
+    public abstract Node getVisualNode();
 }

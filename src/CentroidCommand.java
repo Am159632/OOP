@@ -1,36 +1,77 @@
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import java.util.Arrays;
 import java.util.List;
 
 public class CentroidCommand<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
     private DistanceStrategy strategy;
-    private List<T> group;
+    private VBox uiContainer;
+    private TextField txtGroup;
 
-    public CentroidCommand(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, List<T> group) {
+    public CentroidCommand(AbstractAnalyzableSpace<T> space) {
         this.space = space;
-        this.visualizer = visualizer;
-        this.strategy = strategy;
-        this.group = group;
+        buildUI();
+    }
+
+    private void buildUI() {
+        uiContainer = new VBox(10);
+
+        txtGroup = new TextField(); txtGroup.setPromptText("Items separated by commas");
+        Button btnClear = new Button("Clear"); btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        btnClear.setOnAction(e -> txtGroup.clear());
+        HBox row = new HBox(5, txtGroup, btnClear); HBox.setHgrow(txtGroup, Priority.ALWAYS);
+
+        uiContainer.getChildren().add(row);
     }
 
     @Override
-    public String execute() {
-        CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
-        T result = space.executeFunction(centroidFunc, strategy);
+    public String getName() { return "Centroid (Average)"; }
 
-        if (result != null) {
-            // צובעים את הקבוצה שהוזנה
-            visualizer.highlightItems(group, "#ADD8E6"); // תכלת בהיר
-            // צובעים את התוצאה (המרכז)
-            visualizer.highlightItems(List.of(result), "#FF0000"); // אדום בולט
+    @Override
+    public Node getUI() { return uiContainer; }
 
-            return "מילת המרכז של הקבוצה היא: " + result;
+    @Override
+    public void setStrategy(DistanceStrategy strategy) { this.strategy = strategy; }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public String execute(SpaceVisualizer<T> visualizer) {
+        if (strategy == null) return "Error: Distance strategy not set.";
+        try {
+            String input = txtGroup.getText();
+            if (input == null || input.isEmpty()) return "Error: Empty input.";
+
+            List<T> group = (List<T>) Arrays.asList(input.split("\\s*,\\s*"));
+            CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
+            T result = space.executeFunction(centroidFunc, strategy);
+
+            visualizer.clearHighlights();
+            if (result != null) {
+                visualizer.highlightItems(group, "#ADD8E6");
+                visualizer.highlightItems(List.of(result), "#FF0000");
+                return "Centroid of the group is: " + result;
+            }
+            return "No centroid found.";
+        } catch (Exception e) {
+            return "Error executing Centroid. Check inputs.";
         }
-        return "לא נמצא מרכז לקבוצה.";
     }
 
     @Override
-    public void undo() {
-        visualizer.clearHighlights();
+    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+
+    @Override
+    public void onNodeClicked(T item) {
+        String current = txtGroup.getText();
+        if (current.isEmpty()) {
+            txtGroup.setText(item.toString());
+        } else {
+            txtGroup.setText(current + ", " + item.toString());
+        }
     }
 }

@@ -1,5 +1,9 @@
-// עכשיו זה גנרי, ומחזיר מחרוזת במקום להשתמש ב-Consumer!
 public interface SpaceCommand<T> {
-    String execute(); // מבצע את המתמטיקה והציור, ומחזיר טקסט למסך ה-UI
-    void undo();      // מסיר רק את הציור של הפעולה הזו (מנקה אפקטים)
+    String getName();
+    javafx.scene.Node getUI();
+    void setStrategy(DistanceStrategy strategy);
+    void onNodeClicked(T item);
+
+    String execute(SpaceVisualizer<T> visualizer);
+    void undo(SpaceVisualizer<T> visualizer);
 }
