@@ -3,8 +3,8 @@ import java.util.Set;
 
 public class SingleSpace<T> implements SpaceComponent<T> {
 
-    private String name;
-    private Map<T, double[]> data;
+    private final String name;
+    private final Map<T, double[]> data;
 
     public SingleSpace(String name, Map<T, double[]> data) {
         this.name = name;

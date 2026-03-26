@@ -24,41 +24,25 @@ public class AnalogyUI<T> implements SpaceCommand<T> {
     private void buildUI() {
         uiContainer = new VBox(10);
 
-        comboW1 = createSearchableComboBox(); comboW1.setPromptText("Item 1");
+        comboW1 = UIUtils.createSearchableComboBox(vocabulary);
+        comboW1.setPromptText("Item 1");
         Button btnClear1 = new Button("X"); btnClear1.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClear1.setOnAction(e -> comboW1.getEditor().clear());
         HBox row1 = new HBox(5, comboW1, btnClear1); HBox.setHgrow(comboW1, Priority.ALWAYS);
 
-        comboW2 = createSearchableComboBox(); comboW2.setPromptText("Item 2");
+        comboW2 = UIUtils.createSearchableComboBox(vocabulary);
+        comboW2.setPromptText("Item 2");
         Button btnClear2 = new Button("X"); btnClear2.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClear2.setOnAction(e -> comboW2.getEditor().clear());
         HBox row2 = new HBox(5, comboW2, btnClear2); HBox.setHgrow(comboW2, Priority.ALWAYS);
 
-        comboW3 = createSearchableComboBox(); comboW3.setPromptText("Item 3");
+        comboW3 = UIUtils.createSearchableComboBox(vocabulary);
+        comboW3.setPromptText("Item 3");
         Button btnClear3 = new Button("X"); btnClear3.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClear3.setOnAction(e -> comboW3.getEditor().clear());
         HBox row3 = new HBox(5, comboW3, btnClear3); HBox.setHgrow(comboW3, Priority.ALWAYS);
 
         uiContainer.getChildren().addAll(row1, row2, row3);
-    }
-
-    private ComboBox<T> createSearchableComboBox() {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setEditable(true);
-        comboBox.setMaxWidth(Double.MAX_VALUE);
-        if (vocabulary != null) comboBox.getItems().addAll(vocabulary);
-
-        comboBox.getEditor().textProperty().addListener((obs, oldText, newText) -> {
-            if (newText == null || newText.isEmpty()) {
-                comboBox.setItems(FXCollections.observableArrayList(vocabulary));
-            } else {
-                List<T> filtered = vocabulary.stream()
-                        .filter(item -> item.toString().toLowerCase().startsWith(newText.toLowerCase()))
-                        .collect(Collectors.toList());
-                comboBox.setItems(FXCollections.observableArrayList(filtered));
-            }
-        });
-        return comboBox;
     }
 
     @Override

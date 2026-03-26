@@ -23,13 +23,8 @@ public class SemanticLineAction<T> implements AppAction<T> {
 
     @Override
     public String execute() {
-        List<ItemDistance<T>> projections = new ArrayList<>();
-        for (T item : space.getItems("FULL")) {
-            if (item.equals(start) || item.equals(end)) continue;
-            ProjectionFunction<T> func = new ProjectionFunction<>("FULL", item, start, end);
-            double val = space.executeFunction(func, strategy);
-            projections.add(new ItemDistance<>(item, val));
-        }
+        ProjectionFunction<T> func = new ProjectionFunction<>("FULL", start, end);
+        List<ItemDistance<T>> projections = space.executeFunction(func, strategy);
 
         projections.sort(Comparator.comparingDouble(ItemDistance::getDistance));
 

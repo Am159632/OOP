@@ -1,34 +1,43 @@
-public class ProjectionFunction<T> implements SpaceFunction<T, Double> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProjectionFunction<T> implements SpaceFunction<T, List<ItemDistance<T>>> {
     private String spaceName;
-    private T targetId;
     private T startId;
     private T endId;
 
-    public ProjectionFunction(String spaceName, T targetId, T startId, T endId) {
+    public ProjectionFunction(String spaceName, T startId, T endId) {
         this.spaceName = spaceName;
-        this.targetId = targetId;
         this.startId = startId;
         this.endId = endId;
     }
 
     @Override
-    public Double execute(SpaceComponent<T> space, DistanceStrategy strategy) {
-        double[] target = space.getVector(spaceName, targetId);
+    public List<ItemDistance<T>> execute(SpaceComponent<T> space, DistanceStrategy strategy) {
         double[] start = space.getVector(spaceName, startId);
         double[] end = space.getVector(spaceName, endId);
+        if (start == null || end == null) return new ArrayList<>();
 
-        if (target == null || start == null || end == null) return 0.0;
+        List<ItemDistance<T>> projections = new ArrayList<>();
 
-        double dotProduct = 0;
-        double axisMagnitudeSq = 0;
+        for (T item : space.getItems(spaceName)) {
+            if (item.equals(startId) || item.equals(endId)) continue;
 
-        for (int i = 0; i < target.length; i++) {
-            double axisDir = end[i] - start[i];
-            dotProduct += (target[i] - start[i]) * axisDir;
-            axisMagnitudeSq += axisDir * axisDir;
+            double[] target = space.getVector(spaceName, item);
+            if (target == null) continue;
+
+            double dotProduct = 0;
+            double axisMagnitudeSq = 0;
+
+            for (int i = 0; i < target.length; i++) {
+                double axisDir = end[i] - start[i];
+                dotProduct += (target[i] - start[i]) * axisDir;
+                axisMagnitudeSq += axisDir * axisDir;
+            }
+
+            double val = (axisMagnitudeSq == 0) ? 0.0 : dotProduct / axisMagnitudeSq;
+            projections.add(new ItemDistance<>(item, val));
         }
-
-        if (axisMagnitudeSq == 0) return 0.0;
-        return dotProduct / axisMagnitudeSq;
+        return projections;
     }
 }

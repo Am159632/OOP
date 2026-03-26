@@ -26,7 +26,7 @@ public class KnnUI<T> implements SpaceCommand<T> {
     private void buildUI() {
         uiContainer = new VBox(10);
 
-        comboTarget = createSearchableComboBox();
+        comboTarget = UIUtils.createSearchableComboBox(vocabulary);
         comboTarget.setPromptText("Target Item");
         Button btnClear = new Button("X");
         btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
@@ -40,24 +40,6 @@ public class KnnUI<T> implements SpaceCommand<T> {
         uiContainer.getChildren().addAll(row, txtK);
     }
 
-    private ComboBox<T> createSearchableComboBox() {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setEditable(true);
-        comboBox.setMaxWidth(Double.MAX_VALUE);
-        if (vocabulary != null) comboBox.getItems().addAll(vocabulary);
-
-        comboBox.getEditor().textProperty().addListener((obs, oldText, newText) -> {
-            if (newText == null || newText.isEmpty()) {
-                comboBox.setItems(FXCollections.observableArrayList(vocabulary));
-            } else {
-                List<T> filtered = vocabulary.stream()
-                        .filter(item -> item.toString().toLowerCase().startsWith(newText.toLowerCase()))
-                        .collect(Collectors.toList());
-                comboBox.setItems(FXCollections.observableArrayList(filtered));
-            }
-        });
-        return comboBox;
-    }
 
     @Override
     public String getName() { return "Find Neighbors (KNN)"; }

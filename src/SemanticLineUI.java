@@ -26,12 +26,14 @@ public class SemanticLineUI<T> implements SpaceCommand<T> {
     private void buildUI() {
         uiContainer = new VBox(10);
 
-        comboStart = createSearchableComboBox(); comboStart.setPromptText("Start Item");
+        comboStart = UIUtils.createSearchableComboBox(vocabulary);
+        comboStart.setPromptText("Start Item");
         Button btnClearStart = new Button("X"); btnClearStart.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClearStart.setOnAction(e -> comboStart.getEditor().clear());
         HBox row1 = new HBox(5, comboStart, btnClearStart); HBox.setHgrow(comboStart, Priority.ALWAYS);
 
-        comboEnd = createSearchableComboBox(); comboEnd.setPromptText("End Item");
+        comboEnd = UIUtils.createSearchableComboBox(vocabulary);
+        comboEnd.setPromptText("End Item");
         Button btnClearEnd = new Button("X"); btnClearEnd.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClearEnd.setOnAction(e -> comboEnd.getEditor().clear());
         HBox row2 = new HBox(5, comboEnd, btnClearEnd); HBox.setHgrow(comboEnd, Priority.ALWAYS);
@@ -39,25 +41,6 @@ public class SemanticLineUI<T> implements SpaceCommand<T> {
         txtK = new TextField(); txtK.setPromptText("Amount of Steps (K)");
 
         uiContainer.getChildren().addAll(row1, row2, txtK);
-    }
-
-    private ComboBox<T> createSearchableComboBox() {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setEditable(true);
-        comboBox.setMaxWidth(Double.MAX_VALUE);
-        if (vocabulary != null) comboBox.getItems().addAll(vocabulary);
-
-        comboBox.getEditor().textProperty().addListener((obs, oldText, newText) -> {
-            if (newText == null || newText.isEmpty()) {
-                comboBox.setItems(FXCollections.observableArrayList(vocabulary));
-            } else {
-                List<T> filtered = vocabulary.stream()
-                        .filter(item -> item.toString().toLowerCase().startsWith(newText.toLowerCase()))
-                        .collect(Collectors.toList());
-                comboBox.setItems(FXCollections.observableArrayList(filtered));
-            }
-        });
-        return comboBox;
     }
 
     @Override

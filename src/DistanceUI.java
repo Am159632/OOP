@@ -24,7 +24,7 @@ public class DistanceUI<T> implements SpaceCommand<T> {
     private void buildUI() {
         uiContainer = new VBox(10);
 
-        comboW1 = createSearchableComboBox();
+        comboW1 = UIUtils.createSearchableComboBox(vocabulary);
         comboW1.setPromptText("Item 1");
         Button btnClear1 = new Button("X");
         btnClear1.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
@@ -32,7 +32,7 @@ public class DistanceUI<T> implements SpaceCommand<T> {
         HBox row1 = new HBox(5, comboW1, btnClear1);
         HBox.setHgrow(comboW1, Priority.ALWAYS);
 
-        comboW2 = createSearchableComboBox();
+        comboW2 = UIUtils.createSearchableComboBox(vocabulary);
         comboW2.setPromptText("Item 2");
         Button btnClear2 = new Button("X");
         btnClear2.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
@@ -41,25 +41,6 @@ public class DistanceUI<T> implements SpaceCommand<T> {
         HBox.setHgrow(comboW2, Priority.ALWAYS);
 
         uiContainer.getChildren().addAll(row1, row2);
-    }
-
-    private ComboBox<T> createSearchableComboBox() {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setEditable(true);
-        comboBox.setMaxWidth(Double.MAX_VALUE);
-        if (vocabulary != null) comboBox.getItems().addAll(vocabulary);
-
-        comboBox.getEditor().textProperty().addListener((obs, oldText, newText) -> {
-            if (newText == null || newText.isEmpty()) {
-                comboBox.setItems(FXCollections.observableArrayList(vocabulary));
-            } else {
-                List<T> filtered = vocabulary.stream()
-                        .filter(item -> item.toString().toLowerCase().startsWith(newText.toLowerCase()))
-                        .collect(Collectors.toList());
-                comboBox.setItems(FXCollections.observableArrayList(filtered));
-            }
-        });
-        return comboBox;
     }
 
     @Override
