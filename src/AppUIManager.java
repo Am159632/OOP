@@ -16,6 +16,7 @@ public class AppUIManager<T> {
     private StackPane centerViewPane;
     private TextArea txtConsole;
     private ComboBox<String> actionBox;
+    private Slider zoomSlider;
 
     private TextField pcaX, pcaY, pcaZ;
     private Map<String, DistanceStrategy> strategies;
@@ -23,6 +24,7 @@ public class AppUIManager<T> {
 
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
+    private ComboBox<SpaceVisualizer<T>> viewSelector;
 
     private Stack<AppAction<T>> undoStack = new Stack<>();
     private Stack<AppAction<T>> redoStack = new Stack<>();
@@ -40,6 +42,17 @@ public class AppUIManager<T> {
 
         centerViewPane = new StackPane(visualizer2D.getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
+
+        centerViewPane.setOnScroll(event -> {
+            if (zoomSlider != null) {
+                double speed = 5.0;
+                if (event.getDeltaY() > 0) {
+                    zoomSlider.setValue(zoomSlider.getValue() + speed);
+                } else {
+                    zoomSlider.setValue(zoomSlider.getValue() - speed);
+                }
+            }
+        });
 
         strategies = new HashMap<>();
         strategies.put("Euclidean", new EuclideanStrategy());
@@ -73,7 +86,7 @@ public class AppUIManager<T> {
         txtConsole.setWrapText(true);
         txtConsole.setPrefRowCount(8);
 
-        ComboBox<SpaceVisualizer<T>> viewSelector = new ComboBox<>();
+        viewSelector = new ComboBox<>();
         viewSelector.getItems().addAll(visualizer2D, visualizer3D);
         viewSelector.setValue(visualizer2D);
         viewSelector.setMaxWidth(Double.MAX_VALUE);
@@ -90,8 +103,9 @@ public class AppUIManager<T> {
         VBox pcaSection = buildPcaSection();
         VBox funcSection = buildFunctionsSection();
         VBox settingsSection = buildSettingsSection();
+        VBox zoomSection = buildZoomSection();
 
-        sideMenu.getChildren().addAll(viewSelector, new Separator(), pcaSection, new Separator(), funcSection, new Separator(), settingsSection, txtConsole);
+        sideMenu.getChildren().addAll(viewSelector, new Separator(), pcaSection, new Separator(), funcSection, new Separator(), settingsSection, new Separator(), zoomSection, txtConsole);
         rootPane.setRight(sideMenu);
     }
 
@@ -213,6 +227,27 @@ public class AppUIManager<T> {
 
         historyBox.getChildren().addAll(btnUndo, btnRedo);
         box.getChildren().addAll(lblDist, distanceBox, historyBox);
+        return box;
+    }
+
+    private VBox buildZoomSection() {
+        VBox box = new VBox(10);
+        Label lblZoom = new Label("4. Camera Zoom Level");
+        lblZoom.getStyleClass().add("section-title");
+
+        zoomSlider = new Slider(1, 100, 50);
+        zoomSlider.setShowTickMarks(true);
+        zoomSlider.setShowTickLabels(true);
+        zoomSlider.setMajorTickUnit(25);
+
+        zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            SpaceVisualizer<T> active = viewSelector.getValue();
+            if (active != null) {
+                active.setZoom(newVal.doubleValue());
+            }
+        });
+
+        box.getChildren().addAll(lblZoom, zoomSlider);
         return box;
     }
 

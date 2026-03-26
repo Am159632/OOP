@@ -101,6 +101,11 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
         return maxs;
     }
 
+    @Override
+    public String toString() {
+        return viewName;
+    }
+
     protected abstract V createShape(T id, double normX, double normY, double normZ);
     protected abstract void addShapeToScene(V shape);
     protected abstract void applyColor(V shape, String colorHex);
@@ -109,8 +114,4 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     public abstract void clearScene();
     public abstract Node getVisualNode();
 
-    @Override
-    public String toString() {
-        return viewName;
-    }
 }

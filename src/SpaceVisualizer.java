@@ -10,5 +10,6 @@ public interface SpaceVisualizer<T> {
     Node getVisualNode();
     void clearScene();
     void drawNode(T id, double normX, double normY, double normZ);
-    void setOnNodeClicked(Consumer<T> listener); // הוחזר בשביל הלחיצות!
+    void setOnNodeClicked(Consumer<T> listener);
+    void setZoom(double percentage);
 }

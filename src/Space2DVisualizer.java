@@ -20,6 +20,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         hoverLabel.setVisible(false);
         hoverLabel.setStyle("-fx-background-color: rgba(110, 193, 255, 0.9); -fx-text-fill: #050814; -fx-padding: 4 8; -fx-font-weight: bold; -fx-background-radius: 4;");
         pane.getChildren().add(hoverLabel);
+
     }
 
     @Override
@@ -74,4 +75,13 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
     @Override
     public Node getVisualNode() { return pane; }
+
+    private static final double ZOOM_FACTOR_2D = 1.15;
+
+    @Override
+    public void setZoom(double percentage) {
+        double scale = percentage / 75.0;
+        getVisualNode().setScaleX(scale);
+        getVisualNode().setScaleY(scale);
+    }
 }

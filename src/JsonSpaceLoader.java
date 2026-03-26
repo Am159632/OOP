@@ -7,9 +7,8 @@ import java.util.function.Function;
 public class JsonSpaceLoader<T> implements SpaceLoader<T> {
     private String filePath;
     private String spaceName;
-    private Function<String, T> parser; // המתורגמן שלנו
+    private Function<String, T> parser;
 
-    // הבנאי דורש עכשיו את המתורגמן
     public JsonSpaceLoader(String filePath, String spaceName, Function<String, T> parser) {
         this.filePath = filePath;
         this.spaceName = spaceName;
@@ -32,21 +31,17 @@ public class JsonSpaceLoader<T> implements SpaceLoader<T> {
             for (String block : blocks) {
                 if (!block.contains("\"vector\"")) continue;
                 try {
-                    // 1. מחלצים את הטקסט (למשל התעודת זהות של הסטודנט)
                     int colonIndex = block.indexOf(":");
                     int firstQuote = block.indexOf("\"", colonIndex);
                     int secondQuote = block.indexOf("\"", firstQuote + 1);
                     String rawString = block.substring(firstQuote + 1, secondQuote);
 
-                    // 2. מחלצים את הוקטור
                     int bracketStart = block.indexOf("[", secondQuote);
                     int bracketEnd = block.indexOf("]", bracketStart);
                     String[] nums = block.substring(bracketStart + 1, bracketEnd).trim().split(",");
                     double[] vec = new double[nums.length];
                     for (int i = 0; i < nums.length; i++) vec[i] = Double.parseDouble(nums[i].trim());
 
-                    // 3. הנה הקסם האמיתי!
-                    // אנחנו שולחים את הטקסט למתורגמן, והוא מחזיר לנו אובייקט מסוג T (למשל Student)
                     T realObject = parser.apply(rawString);
 
                     data.put(realObject, vec);

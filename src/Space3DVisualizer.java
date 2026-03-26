@@ -30,7 +30,7 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
 
         camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
-        camera.setFarClip(15000.0);
+        camera.setFarClip(30000.0);
         camera.setTranslateZ(-2500);
 
         cameraPitch = new Rotate(0, Rotate.X_AXIS);
@@ -132,5 +132,13 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     @Override
     public Node getVisualNode() {
         return wrapper;
+    }
+
+    @Override
+    public void setZoom(double percentage) {
+        if (camera != null) {
+            double zPos = -3000.0 + (percentage * 20.0);
+            camera.setTranslateZ(zPos);
+        }
     }
 }
