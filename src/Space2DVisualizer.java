@@ -12,6 +12,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     private final double PADDING = 40;
 
     public Space2DVisualizer() {
+        super("2D Dimensional View");
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setStyle("-fx-background-color: transparent;");
 

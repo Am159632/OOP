@@ -19,6 +19,9 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
     private ComboBox<T> comboStart, comboEnd;
     private TextField txtK;
 
+    private T savedStart, savedEnd;
+    private int savedK = 0;
+
     public SemanticLineCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
@@ -38,7 +41,7 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
         btnClearEnd.setOnAction(e -> comboEnd.getEditor().clear());
         HBox row2 = new HBox(5, comboEnd, btnClearEnd); HBox.setHgrow(comboEnd, Priority.ALWAYS);
 
-        txtK = new TextField("5"); txtK.setPromptText("Amount of Steps (K)");
+        txtK = new TextField(); txtK.setPromptText("Amount of Steps (K)");
 
         uiContainer.getChildren().addAll(row1, row2, txtK);
     }
@@ -75,22 +78,37 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
     public String execute(SpaceVisualizer<T> visualizer) {
         if (strategy == null) return "Error: Distance strategy not set.";
         try {
-            T startId = comboStart.getEditor().getText().isEmpty() ? comboStart.getValue() : (T) comboStart.getEditor().getText();
-            T endId = comboEnd.getEditor().getText().isEmpty() ? comboEnd.getValue() : (T) comboEnd.getEditor().getText();
-            int k = Integer.parseInt(txtK.getText());
+            String ts = comboStart.getEditor().getText();
+            if (ts != null && !ts.isEmpty()) savedStart = (T) ts;
+            else if (comboStart.getValue() != null) savedStart = comboStart.getValue();
+
+            String te = comboEnd.getEditor().getText();
+            if (te != null && !te.isEmpty()) savedEnd = (T) te;
+            else if (comboEnd.getValue() != null) savedEnd = comboEnd.getValue();
+
+            String kText = txtK.getText();
+            if (kText != null && !kText.isEmpty()) {
+                savedK = Integer.parseInt(kText);
+            } else if (savedK == 0) {
+                return "Error: Please enter a value for Steps (K).";
+            }
+
+            if (savedStart != null) comboStart.getEditor().setText(savedStart.toString());
+            if (savedEnd != null) comboEnd.getEditor().setText(savedEnd.toString());
+            if (savedK > 0) txtK.setText(String.valueOf(savedK));
 
             List<ItemDistance<T>> projections = new ArrayList<>();
             for (T item : space.getItems("FULL")) {
-                if (item.equals(startId) || item.equals(endId)) continue;
-                ProjectionFunction<T> func = new ProjectionFunction<>("FULL", item, startId, endId);
+                if (item.equals(savedStart) || item.equals(savedEnd)) continue;
+                ProjectionFunction<T> func = new ProjectionFunction<>("FULL", item, savedStart, savedEnd);
                 double val = space.executeFunction(func, strategy);
                 projections.add(new ItemDistance<>(item, val));
             }
 
             projections.sort(Comparator.comparingDouble(ItemDistance::getDistance));
 
-            List<T> closeToStart = projections.stream().limit(k).map(ItemDistance::getId).collect(Collectors.toList());
-            List<T> closeToEnd = projections.stream().skip(Math.max(0, projections.size() - k)).map(ItemDistance::getId).collect(Collectors.toList());
+            List<T> closeToStart = projections.stream().limit(savedK).map(ItemDistance::getId).collect(Collectors.toList());
+            List<T> closeToEnd = projections.stream().skip(Math.max(0, projections.size() - savedK)).map(ItemDistance::getId).collect(Collectors.toList());
             java.util.Collections.reverse(closeToEnd);
 
             visualizer.clearHighlights();
@@ -98,10 +116,10 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
             visualizer.highlightItems(closeToEnd, "#32CD32");
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Semantic Line: ").append(startId).append(" <--> ").append(endId).append("\n\n");
-            sb.append("Top ").append(k).append(" closest to '").append(startId).append("':\n");
+            sb.append("Semantic Line: ").append(savedStart).append(" <--> ").append(savedEnd).append("\n\n");
+            sb.append("Top ").append(savedK).append(" closest to '").append(savedStart).append("':\n");
             closeToStart.forEach(word -> sb.append("- ").append(word).append("\n"));
-            sb.append("\nTop ").append(k).append(" closest to '").append(endId).append("':\n");
+            sb.append("\nTop ").append(savedK).append(" closest to '").append(savedEnd).append("':\n");
             closeToEnd.forEach(word -> sb.append("- ").append(word).append("\n"));
 
             return sb.toString();
@@ -117,7 +135,7 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
         comboEnd.getEditor().clear();
         comboStart.setValue(null);
         comboEnd.setValue(null);
-        txtK.setText("5");
+        txtK.clear();
     }
 
     @Override

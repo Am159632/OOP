@@ -15,7 +15,7 @@ public class AppUIManager<T> {
     private Space3DVisualizer<T> visualizer3D;
     private StackPane centerViewPane;
     private TextArea txtConsole;
-    private boolean is3DMode = false;
+    private ComboBox<String> actionBox;
 
     private TextField pcaX, pcaY, pcaZ;
     private Map<String, DistanceStrategy> strategies;
@@ -54,6 +54,8 @@ public class AppUIManager<T> {
 
         buildSideMenu();
         rootPane.setCenter(centerViewPane);
+
+        // מריצים PCA פעם אחת בלבד בהתחלה!
         executePca();
 
         multiVisualizer.setOnNodeClicked(item -> {
@@ -73,24 +75,26 @@ public class AppUIManager<T> {
         txtConsole.setWrapText(true);
         txtConsole.setPrefRowCount(8);
 
-        ToggleButton btnToggleView = new ToggleButton("Switch to 3D View");
-        btnToggleView.setMaxWidth(Double.MAX_VALUE);
-        btnToggleView.getStyleClass().add("button");
-        btnToggleView.setOnAction(e -> {
-            is3DMode = btnToggleView.isSelected();
-            SpaceVisualizer<T> activeVis = is3DMode ? visualizer3D : visualizer2D;
-            btnToggleView.setText(is3DMode ? "Switch to 2D View" : "Switch to 3D View");
-            centerViewPane.getChildren().setAll(activeVis.getVisualNode());
-            pcaZ.setVisible(is3DMode);
-            pcaZ.setManaged(is3DMode);
-            executePca();
+        ComboBox<SpaceVisualizer<T>> viewSelector = new ComboBox<>();
+        viewSelector.getItems().addAll(visualizer2D, visualizer3D);
+        viewSelector.setValue(visualizer2D);
+        viewSelector.setMaxWidth(Double.MAX_VALUE);
+        viewSelector.setStyle("-fx-font-weight: bold;");
+
+        viewSelector.setOnAction(e -> {
+            SpaceVisualizer<T> selected = viewSelector.getValue();
+            centerViewPane.getChildren().setAll(selected.getVisualNode());
+            boolean is3D = (selected instanceof Space3DVisualizer);
+            pcaZ.setVisible(is3D);
+            pcaZ.setManaged(is3D);
+            // הסרנו את הקריאה ל-executePca() מכאן כדי לא למחוק צבעים בהחלפת מסך!
         });
 
         VBox pcaSection = buildPcaSection();
         VBox funcSection = buildFunctionsSection();
         VBox settingsSection = buildSettingsSection();
 
-        sideMenu.getChildren().addAll(btnToggleView, new Separator(), pcaSection, new Separator(), funcSection, new Separator(), settingsSection, txtConsole);
+        sideMenu.getChildren().addAll(viewSelector, new Separator(), pcaSection, new Separator(), funcSection, new Separator(), settingsSection, txtConsole);
         rootPane.setRight(sideMenu);
     }
 
@@ -117,7 +121,7 @@ public class AppUIManager<T> {
         Label lblFunc = new Label("2. Analysis Functions");
         lblFunc.getStyleClass().add("section-title");
 
-        ComboBox<String> actionBox = new ComboBox<>();
+        actionBox = new ComboBox<>();
         for (SpaceCommand<T> cmd : availableCommands) {
             actionBox.getItems().add(cmd.getName());
         }
@@ -172,27 +176,35 @@ public class AppUIManager<T> {
 
         HBox historyBox = new HBox(10);
 
-        Button btnUndo = new Button("Undo Command");
+        Button btnUndo = new Button("Undo");
         btnUndo.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnUndo, Priority.ALWAYS);
         btnUndo.setOnAction(e -> {
             if (!undoStack.isEmpty()) {
+                // 1. מוציאים את הפקודה האחרונה ומבטלים אותה
                 SpaceCommand<T> cmd = undoStack.pop();
                 cmd.undo(multiVisualizer);
-                txtConsole.setText("");
                 redoStack.push(cmd);
-            } else {
-                multiVisualizer.clearHighlights();
-                txtConsole.setText("");
+
+                // 2. בודקים אם יש פקודה קודמת להציג
+                if (!undoStack.isEmpty()) {
+                    SpaceCommand<T> prevCmd = undoStack.peek();
+                    actionBox.setValue(prevCmd.getName()); // מחזיר את הקומבו לפונקציה הקודמת!
+                    txtConsole.setText(prevCmd.execute(multiVisualizer)); // מריץ אותה מחדש בשקט כדי לצבוע
+                } else {
+                    multiVisualizer.clearHighlights();
+                    txtConsole.setText("Reverted to clean space.");
+                }
             }
         });
 
-        Button btnRedo = new Button("Redo Command");
+        Button btnRedo = new Button("Redo");
         btnRedo.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnRedo, Priority.ALWAYS);
         btnRedo.setOnAction(e -> {
             if (!redoStack.isEmpty()) {
                 SpaceCommand<T> cmd = redoStack.pop();
+                actionBox.setValue(cmd.getName()); // מחליף קומבו לפונקציה המשוחזרת
                 txtConsole.setText(cmd.execute(multiVisualizer));
                 undoStack.push(cmd);
             }
@@ -207,7 +219,8 @@ public class AppUIManager<T> {
         try {
             int x = Integer.parseInt(pcaX.getText());
             int y = Integer.parseInt(pcaY.getText());
-            int z = is3DMode ? Integer.parseInt(pcaZ.getText()) : Integer.MIN_VALUE;
+            int z = Integer.parseInt(pcaZ.getText());
+
             multiVisualizer.clearHighlights();
             String res = new PcaCommand<>(space, x, y, z).execute(multiVisualizer);
             txtConsole.setText(res);

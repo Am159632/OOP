@@ -21,6 +21,7 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private final double HIGHLIGHT_RADIUS = 15.0;
 
     public Space3DVisualizer() {
+        super("3D Dimensional View");
         world.getChildren().add(new AmbientLight(Color.rgb(220, 220, 220)));
 
         PointLight headlamp = new PointLight(Color.WHITE);

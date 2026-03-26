@@ -15,6 +15,8 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
     private VBox uiContainer;
     private ComboBox<T> comboW1, comboW2;
 
+    private T savedW1, savedW2;
+
     public DistanceCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
@@ -75,17 +77,25 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
     public String execute(SpaceVisualizer<T> visualizer) {
         if (strategy == null) return "Error: Distance strategy not set.";
         try {
-            T w1 = comboW1.getEditor().getText().isEmpty() ? comboW1.getValue() : (T) comboW1.getEditor().getText();
-            T w2 = comboW2.getEditor().getText().isEmpty() ? comboW2.getValue() : (T) comboW2.getEditor().getText();
+            String t1 = comboW1.getEditor().getText();
+            if (t1 != null && !t1.isEmpty()) savedW1 = (T) t1;
+            else if (comboW1.getValue() != null) savedW1 = comboW1.getValue();
 
-            DistanceFunction<T> func = new DistanceFunction<>("FULL", w1, w2);
+            String t2 = comboW2.getEditor().getText();
+            if (t2 != null && !t2.isEmpty()) savedW2 = (T) t2;
+            else if (comboW2.getValue() != null) savedW2 = comboW2.getValue();
+
+            if (savedW1 != null) comboW1.getEditor().setText(savedW1.toString());
+            if (savedW2 != null) comboW2.getEditor().setText(savedW2.toString());
+
+            DistanceFunction<T> func = new DistanceFunction<>("FULL", savedW1, savedW2);
             double dist = space.executeFunction(func, strategy);
 
             visualizer.clearHighlights();
-            visualizer.highlightItems(List.of(w1), "#FFD700");
-            visualizer.highlightItems(List.of(w2), "#FF69B4");
+            visualizer.highlightItems(List.of(savedW1), "#FFD700");
+            visualizer.highlightItems(List.of(savedW2), "#FF69B4");
 
-            return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist);
+            return "Distance between '" + savedW1 + "' and '" + savedW2 + "': " + String.format("%.5f", dist);
         } catch (Exception e) {
             return "Error calculating distance. Check inputs.";
         }

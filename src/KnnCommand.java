@@ -17,6 +17,9 @@ public class KnnCommand<T> implements SpaceCommand<T> {
     private ComboBox<T> comboTarget;
     private TextField txtK;
 
+    private T savedTarget;
+    private int savedK = 0; // 0 אומר שעדיין לא הוקלד כלום
+
     public KnnCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
@@ -34,7 +37,7 @@ public class KnnCommand<T> implements SpaceCommand<T> {
         HBox row = new HBox(5, comboTarget, btnClear);
         HBox.setHgrow(comboTarget, Priority.ALWAYS);
 
-        txtK = new TextField("5");
+        txtK = new TextField();
         txtK.setPromptText("Number of Neighbors (K)");
 
         uiContainer.getChildren().addAll(row, txtK);
@@ -72,18 +75,33 @@ public class KnnCommand<T> implements SpaceCommand<T> {
     public String execute(SpaceVisualizer<T> visualizer) {
         if (strategy == null) return "Error: Distance strategy not set.";
         try {
-            T targetId = comboTarget.getEditor().getText().isEmpty() ? comboTarget.getValue() : (T) comboTarget.getEditor().getText();
-            int k = Integer.parseInt(txtK.getText());
+            String targetText = comboTarget.getEditor().getText();
+            if (targetText != null && !targetText.isEmpty()) {
+                savedTarget = (T) targetText;
+            } else if (comboTarget.getValue() != null) {
+                savedTarget = comboTarget.getValue();
+            }
 
-            KnnFunction<T> knnFunc = new KnnFunction<>("FULL", targetId, k);
+            String kText = txtK.getText();
+            if (kText != null && !kText.isEmpty()) {
+                savedK = Integer.parseInt(kText);
+            } else if (savedK == 0) {
+                return "Error: Please enter a value for K.";
+            }
+
+            // החזרת הערכים לתיבות (למקרה של Redo מתיבות ריקות)
+            if (savedTarget != null) comboTarget.getEditor().setText(savedTarget.toString());
+            if (savedK > 0) txtK.setText(String.valueOf(savedK));
+
+            KnnFunction<T> knnFunc = new KnnFunction<>("FULL", savedTarget, savedK);
             List<ItemDistance<T>> neighbors = space.executeFunction(knnFunc, strategy);
             List<T> neighborIds = neighbors.stream().map(ItemDistance::getId).collect(Collectors.toList());
 
             visualizer.clearHighlights();
-            visualizer.highlightItems(List.of(targetId), "#FF0000");
+            visualizer.highlightItems(List.of(savedTarget), "#FF0000");
             visualizer.highlightItems(neighborIds, "#32CD32");
 
-            StringBuilder sb = new StringBuilder("Neighbors of '" + targetId + "':\n");
+            StringBuilder sb = new StringBuilder("Neighbors of '" + savedTarget + "':\n");
             for (int i = 0; i < neighbors.size(); i++) {
                 sb.append(i + 1).append(". ").append(neighbors.get(i).getId())
                         .append(" (Distance: ").append(String.format("%.4f", neighbors.get(i).getDistance())).append(")\n");
@@ -99,7 +117,7 @@ public class KnnCommand<T> implements SpaceCommand<T> {
         visualizer.clearHighlights();
         comboTarget.getEditor().clear();
         comboTarget.setValue(null);
-        txtK.setText("5");
+        txtK.clear(); // מנקה לחלוטין בלי מספרים כפויים!
     }
 
     @Override

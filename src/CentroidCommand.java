@@ -13,6 +13,8 @@ public class CentroidCommand<T> implements SpaceCommand<T> {
     private VBox uiContainer;
     private TextField txtGroup;
 
+    private String savedInput = "";
+
     public CentroidCommand(AbstractAnalyzableSpace<T> space) {
         this.space = space;
         buildUI();
@@ -44,9 +46,11 @@ public class CentroidCommand<T> implements SpaceCommand<T> {
         if (strategy == null) return "Error: Distance strategy not set.";
         try {
             String input = txtGroup.getText();
-            if (input == null || input.isEmpty()) return "Error: Empty input.";
+            if (input != null && !input.isEmpty()) savedInput = input;
 
-            List<T> group = (List<T>) Arrays.asList(input.split("\\s*,\\s*"));
+            txtGroup.setText(savedInput);
+
+            List<T> group = (List<T>) Arrays.asList(savedInput.split("\\s*,\\s*"));
             CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
             T result = space.executeFunction(centroidFunc, strategy);
 

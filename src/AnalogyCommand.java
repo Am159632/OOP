@@ -15,6 +15,8 @@ public class AnalogyCommand<T> implements SpaceCommand<T> {
     private VBox uiContainer;
     private ComboBox<T> comboW1, comboW2, comboW3;
 
+    private T savedW1, savedW2, savedW3;
+
     public AnalogyCommand(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         this.space = space;
         this.vocabulary = vocabulary;
@@ -74,18 +76,30 @@ public class AnalogyCommand<T> implements SpaceCommand<T> {
     public String execute(SpaceVisualizer<T> visualizer) {
         if (strategy == null) return "Error: Distance strategy not set.";
         try {
-            T w1 = comboW1.getEditor().getText().isEmpty() ? comboW1.getValue() : (T) comboW1.getEditor().getText();
-            T w2 = comboW2.getEditor().getText().isEmpty() ? comboW2.getValue() : (T) comboW2.getEditor().getText();
-            T w3 = comboW3.getEditor().getText().isEmpty() ? comboW3.getValue() : (T) comboW3.getEditor().getText();
+            String t1 = comboW1.getEditor().getText();
+            if (t1 != null && !t1.isEmpty()) savedW1 = (T) t1;
+            else if (comboW1.getValue() != null) savedW1 = comboW1.getValue();
 
-            AnalogyFunction<T> analogyFunc = new AnalogyFunction<>("FULL", w1, w2, w3);
+            String t2 = comboW2.getEditor().getText();
+            if (t2 != null && !t2.isEmpty()) savedW2 = (T) t2;
+            else if (comboW2.getValue() != null) savedW2 = comboW2.getValue();
+
+            String t3 = comboW3.getEditor().getText();
+            if (t3 != null && !t3.isEmpty()) savedW3 = (T) t3;
+            else if (comboW3.getValue() != null) savedW3 = comboW3.getValue();
+
+            if (savedW1 != null) comboW1.getEditor().setText(savedW1.toString());
+            if (savedW2 != null) comboW2.getEditor().setText(savedW2.toString());
+            if (savedW3 != null) comboW3.getEditor().setText(savedW3.toString());
+
+            AnalogyFunction<T> analogyFunc = new AnalogyFunction<>("FULL", savedW1, savedW2, savedW3);
             T result = space.executeFunction(analogyFunc, strategy);
 
             visualizer.clearHighlights();
             if (result != null) {
-                visualizer.highlightItems(List.of(w1, w2, w3), "#FFA500");
+                visualizer.highlightItems(List.of(savedW1, savedW2, savedW3), "#FFA500");
                 visualizer.highlightItems(List.of(result), "#FFD700");
-                return w1 + " - " + w2 + " + " + w3 + " = " + result;
+                return savedW1 + " - " + savedW2 + " + " + savedW3 + " = " + result;
             }
             return "No analogy found.";
         } catch (Exception e) {

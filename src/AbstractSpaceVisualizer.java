@@ -8,8 +8,12 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
 
     protected Map<T, V> nodesMap = new HashMap<>();
     protected Map<T, String> highlightedColors = new HashMap<>();
-
+    private String viewName;
     private Consumer<T> onNodeClickedListener;
+
+    public AbstractSpaceVisualizer(String viewName) {
+        this.viewName = viewName;
+    }
 
     @Override
     public void setOnNodeClicked(Consumer<T> listener) {
@@ -104,4 +108,9 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
 
     public abstract void clearScene();
     public abstract Node getVisualNode();
+
+    @Override
+    public String toString() {
+        return viewName;
+    }
 }
