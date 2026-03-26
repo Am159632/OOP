@@ -1,5 +1,4 @@
 import javafx.scene.Node;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +7,7 @@ import java.util.function.Consumer;
 public abstract class AbstractSpaceVisualizer<T, V extends Node> implements SpaceVisualizer<T> {
 
     protected Map<T, V> nodesMap = new HashMap<>();
-    protected List<T> currentlyHighlighted = new ArrayList<>();
-
+    protected Map<T, String> highlightedColors = new HashMap<>();
 
     private Consumer<T> onNodeClickedListener;
 
@@ -31,14 +29,13 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             double normY = coords.length > 1 ? ((maxs[1] == mins[1]) ? 0.5 : (coords[1] - mins[1]) / (maxs[1] - mins[1])) : 0.5;
             double normZ = coords.length > 2 ? ((maxs[2] == mins[2]) ? 0.5 : (coords[2] - mins[2]) / (maxs[2] - mins[2])) : 0.5;
 
-            drawNode(p.getId(), normX, normY, normZ); // עכשיו זה משתמש בפונקציה האחת ששומרת קליקים!
+            drawNode(p.getId(), normX, normY, normZ);
         }
     }
 
     @Override
     public final void drawNode(T id, double normX, double normY, double normZ) {
         V shape = createShape(id, normX, normY, normZ);
-
 
         shape.setOnMouseClicked(e -> {
             if (onNodeClickedListener != null) {
@@ -56,25 +53,23 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             V shape = nodesMap.get(item);
             if (shape != null) {
                 applyColor(shape, colorHex);
-                if (!currentlyHighlighted.contains(item)) {
-                    currentlyHighlighted.add(item);
-                }
+                highlightedColors.put(item, colorHex);
             }
         }
     }
 
     @Override
     public void clearHighlights() {
-        for (T item : currentlyHighlighted) {
+        for (T item : highlightedColors.keySet()) {
             V shape = nodesMap.get(item);
             if (shape != null) applyColor(shape, getDefaultColor());
         }
-        currentlyHighlighted.clear();
+        highlightedColors.clear();
     }
 
     public void clearSpace() {
         nodesMap.clear();
-        currentlyHighlighted.clear();
+        highlightedColors.clear();
         clearScene();
     }
 

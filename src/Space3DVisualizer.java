@@ -3,7 +3,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
@@ -22,14 +21,12 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private final double HIGHLIGHT_RADIUS = 15.0;
 
     public Space3DVisualizer() {
-
         world.getChildren().add(new AmbientLight(Color.rgb(220, 220, 220)));
 
         PointLight headlamp = new PointLight(Color.WHITE);
         headlamp.setTranslateZ(-2500);
         cameraPivot.getChildren().add(headlamp);
 
-        // מצלמה בציר (לוויין)
         camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(15000.0);
@@ -41,9 +38,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         cameraPivot.getTransforms().addAll(cameraYaw, cameraPitch);
         cameraPivot.getChildren().add(camera);
         world.getChildren().add(cameraPivot);
-
-        // צירי עזר (אדום=X, ירוק=Y, כחול=Z)
-        buildAxes();
 
         SubScene subScene = new SubScene(world, 800, 700, true, SceneAntialiasing.BALANCED);
         subScene.setCamera(camera);
@@ -76,16 +70,9 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         wrapper.setOnScroll(e -> camera.setTranslateZ(camera.getTranslateZ() + e.getDeltaY() * 10));
     }
 
-    private void buildAxes() {
-        Box xAxis = new Box(SCENE_RANGE, 2, 2); xAxis.setMaterial(new PhongMaterial(Color.RED));
-        Box yAxis = new Box(2, SCENE_RANGE, 2); yAxis.setMaterial(new PhongMaterial(Color.GREEN));
-        Box zAxis = new Box(2, 2, SCENE_RANGE); zAxis.setMaterial(new PhongMaterial(Color.BLUE));
-        world.getChildren().addAll(xAxis, yAxis, zAxis);
-    }
-
     @Override
     protected Sphere createShape(T id, double normX, double normY, double normZ) {
-        Sphere sphere = new Sphere(DEFAULT_RADIUS, 12); // רזולוציה 12 לביצועים!
+        Sphere sphere = new Sphere(DEFAULT_RADIUS, 12);
 
         sphere.setTranslateX((normX - 0.5) * SCENE_RANGE);
         sphere.setTranslateY((normY - 0.5) * SCENE_RANGE);
@@ -107,12 +94,12 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
 
         sphere.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
-            if (!currentlyHighlighted.contains(id)) {
+            if (highlightedColors.containsKey(id)) {
+                sphere.setRadius(HIGHLIGHT_RADIUS);
+                material.setDiffuseColor(Color.web(highlightedColors.get(id)));
+            } else {
                 sphere.setRadius(DEFAULT_RADIUS);
                 material.setDiffuseColor(Color.web(getDefaultColor()));
-            } else {
-                // אם הנקודה צבועה (בגלל פקודה), נחזיר לה את צבע ההדגשה הקודם שלה
-                material.setDiffuseColor(Color.web(((PhongMaterial)sphere.getMaterial()).getDiffuseColor().toString()));
             }
         });
 

@@ -41,10 +41,13 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
         circle.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
-            if (!currentlyHighlighted.contains(id)) {
+            if (highlightedColors.containsKey(id)) {
+                circle.setFill(Color.web(highlightedColors.get(id), 1.0));
+                circle.setRadius(5);
+            } else {
                 circle.setFill(Color.web(getDefaultColor(), 0.6));
+                circle.setRadius(3);
             }
-            circle.setRadius(3);
         });
 
         return circle;
