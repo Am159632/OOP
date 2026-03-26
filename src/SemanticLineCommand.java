@@ -111,7 +111,14 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
     }
 
     @Override
-    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+    public void undo(SpaceVisualizer<T> visualizer) {
+        visualizer.clearHighlights();
+        comboStart.getEditor().clear();
+        comboEnd.getEditor().clear();
+        comboStart.setValue(null);
+        comboEnd.setValue(null);
+        txtK.setText("5");
+    }
 
     @Override
     public void onNodeClicked(T item) {
@@ -119,7 +126,9 @@ public class SemanticLineCommand<T> implements SpaceCommand<T> {
             comboStart.getEditor().setText(item.toString());
         } else if (comboEnd.getEditor().getText().isEmpty()) {
             comboEnd.getEditor().setText(item.toString());
+        } else {
+            comboStart.getEditor().setText(item.toString());
+            comboEnd.getEditor().clear();
         }
     }
-
 }

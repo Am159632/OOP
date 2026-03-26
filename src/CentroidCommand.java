@@ -63,7 +63,10 @@ public class CentroidCommand<T> implements SpaceCommand<T> {
     }
 
     @Override
-    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+    public void undo(SpaceVisualizer<T> visualizer) {
+        visualizer.clearHighlights();
+        txtGroup.clear();
+    }
 
     @Override
     public void onNodeClicked(T item) {

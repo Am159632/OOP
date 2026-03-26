@@ -94,7 +94,15 @@ public class AnalogyCommand<T> implements SpaceCommand<T> {
     }
 
     @Override
-    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+    public void undo(SpaceVisualizer<T> visualizer) {
+        visualizer.clearHighlights();
+        comboW1.getEditor().clear();
+        comboW2.getEditor().clear();
+        comboW3.getEditor().clear();
+        comboW1.setValue(null);
+        comboW2.setValue(null);
+        comboW3.setValue(null);
+    }
 
     @Override
     public void onNodeClicked(T item) {
@@ -104,6 +112,10 @@ public class AnalogyCommand<T> implements SpaceCommand<T> {
             comboW2.getEditor().setText(item.toString());
         } else if (comboW3.getEditor().getText().isEmpty()) {
             comboW3.getEditor().setText(item.toString());
+        } else {
+            comboW1.getEditor().setText(item.toString());
+            comboW2.getEditor().clear();
+            comboW3.getEditor().clear();
         }
     }
 }

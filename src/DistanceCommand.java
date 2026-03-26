@@ -82,8 +82,8 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
             double dist = space.executeFunction(func, strategy);
 
             visualizer.clearHighlights();
-            visualizer.highlightItems(List.of(w1), "#00FFFF");
-            visualizer.highlightItems(List.of(w2), "#FF00FF");
+            visualizer.highlightItems(List.of(w1), "#FFD700");
+            visualizer.highlightItems(List.of(w2), "#FF69B4");
 
             return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist);
         } catch (Exception e) {
@@ -92,7 +92,13 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
     }
 
     @Override
-    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+    public void undo(SpaceVisualizer<T> visualizer) {
+        visualizer.clearHighlights();
+        comboW1.getEditor().clear();
+        comboW2.getEditor().clear();
+        comboW1.setValue(null);
+        comboW2.setValue(null);
+    }
 
     @Override
     public void onNodeClicked(T item) {
@@ -100,7 +106,9 @@ public class DistanceCommand<T> implements SpaceCommand<T> {
             comboW1.getEditor().setText(item.toString());
         } else if (comboW2.getEditor().getText().isEmpty()) {
             comboW2.getEditor().setText(item.toString());
+        } else {
+            comboW1.getEditor().setText(item.toString());
+            comboW2.getEditor().clear();
         }
     }
-
 }

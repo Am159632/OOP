@@ -26,12 +26,16 @@ public class KnnCommand<T> implements SpaceCommand<T> {
     private void buildUI() {
         uiContainer = new VBox(10);
 
-        comboTarget = createSearchableComboBox(); comboTarget.setPromptText("Target Item");
-        Button btnClear = new Button("X"); btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        comboTarget = createSearchableComboBox();
+        comboTarget.setPromptText("Target Item");
+        Button btnClear = new Button("X");
+        btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         btnClear.setOnAction(e -> comboTarget.getEditor().clear());
-        HBox row = new HBox(5, comboTarget, btnClear); HBox.setHgrow(comboTarget, Priority.ALWAYS);
+        HBox row = new HBox(5, comboTarget, btnClear);
+        HBox.setHgrow(comboTarget, Priority.ALWAYS);
 
-        txtK = new TextField("5"); txtK.setPromptText("Number of Neighbors (K)");
+        txtK = new TextField("5");
+        txtK.setPromptText("Number of Neighbors (K)");
 
         uiContainer.getChildren().addAll(row, txtK);
     }
@@ -91,13 +95,15 @@ public class KnnCommand<T> implements SpaceCommand<T> {
     }
 
     @Override
-    public void undo(SpaceVisualizer<T> visualizer) { visualizer.clearHighlights(); }
+    public void undo(SpaceVisualizer<T> visualizer) {
+        visualizer.clearHighlights();
+        comboTarget.getEditor().clear();
+        comboTarget.setValue(null);
+        txtK.setText("5");
+    }
 
     @Override
     public void onNodeClicked(T item) {
-        if (comboTarget.getEditor().getText().isEmpty()) {
-            comboTarget.getEditor().setText(item.toString());
-        }
+        comboTarget.getEditor().setText(item.toString());
     }
-
 }

@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class AppUIManager<T> {
     private BorderPane rootPane;
     private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> currentVisualizer;
+    private MultiSpaceVisualizer<T> multiVisualizer;
     private Space2DVisualizer<T> visualizer2D;
     private Space3DVisualizer<T> visualizer3D;
     private StackPane centerViewPane;
@@ -23,6 +24,9 @@ public class AppUIManager<T> {
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
 
+    private Stack<SpaceCommand<T>> undoStack = new Stack<>();
+    private Stack<SpaceCommand<T>> redoStack = new Stack<>();
+
     public AppUIManager(AbstractAnalyzableSpace<T> space, DistanceStrategy defaultStrategy, List<T> vocabulary) {
         this.space = space;
         this.currentStrategy = defaultStrategy;
@@ -30,16 +34,17 @@ public class AppUIManager<T> {
 
         visualizer2D = new Space2DVisualizer<>();
         visualizer3D = new Space3DVisualizer<>();
-        currentVisualizer = visualizer2D;
 
-        centerViewPane = new StackPane(currentVisualizer.getVisualNode());
+        List<SpaceVisualizer<T>> allVisualizers = List.of(visualizer2D, visualizer3D);
+        multiVisualizer = new MultiSpaceVisualizer<>(allVisualizers);
+
+        centerViewPane = new StackPane(visualizer2D.getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
 
         strategies = new HashMap<>();
         strategies.put("Euclidean", new EuclideanStrategy());
         strategies.put("Cosine", new CosineStrategy());
 
-        // שינוי 1: הפקודות כבר לא מקבלות את הויזואליזר בבנאי!
         availableCommands = new ArrayList<>();
         availableCommands.add(new KnnCommand<>(space, vocabulary));
         availableCommands.add(new DistanceCommand<>(space, vocabulary));
@@ -51,8 +56,11 @@ public class AppUIManager<T> {
         rootPane.setCenter(centerViewPane);
         executePca();
 
-        visualizer2D.setOnNodeClicked(item -> { if (activeCommand != null) activeCommand.onNodeClicked(item); });
-        visualizer3D.setOnNodeClicked(item -> { if (activeCommand != null) activeCommand.onNodeClicked(item); });
+        multiVisualizer.setOnNodeClicked(item -> {
+            if (activeCommand != null) {
+                activeCommand.onNodeClicked(item);
+            }
+        });
     }
 
     private void buildSideMenu() {
@@ -70,13 +78,12 @@ public class AppUIManager<T> {
         btnToggleView.getStyleClass().add("button");
         btnToggleView.setOnAction(e -> {
             is3DMode = btnToggleView.isSelected();
-            currentVisualizer = is3DMode ? visualizer3D : visualizer2D;
+            SpaceVisualizer<T> activeVis = is3DMode ? visualizer3D : visualizer2D;
             btnToggleView.setText(is3DMode ? "Switch to 2D View" : "Switch to 3D View");
-            centerViewPane.getChildren().setAll(currentVisualizer.getVisualNode());
+            centerViewPane.getChildren().setAll(activeVis.getVisualNode());
             pcaZ.setVisible(is3DMode);
             pcaZ.setManaged(is3DMode);
             executePca();
-            // איזה יופי! אין פה יותר צורך לעדכן את הפקודה איזו גרפיקה פתוחה!
         });
 
         VBox pcaSection = buildPcaSection();
@@ -139,8 +146,9 @@ public class AppUIManager<T> {
         btnFunc.setMaxWidth(Double.MAX_VALUE);
         btnFunc.setOnAction(e -> {
             if (activeCommand != null) {
-                // שינוי 2: הזרקת הויזואליזר הפעיל ישירות לפעולת ה-execute!
-                txtConsole.setText(activeCommand.execute(currentVisualizer));
+                txtConsole.setText(activeCommand.execute(multiVisualizer));
+                undoStack.push(activeCommand);
+                redoStack.clear();
             }
         });
 
@@ -150,7 +158,7 @@ public class AppUIManager<T> {
 
     private VBox buildSettingsSection() {
         VBox box = new VBox(10);
-        Label lblDist = new Label("3. Distance Metric");
+        Label lblDist = new Label("3. Settings & History");
         lblDist.getStyleClass().add("section-title");
 
         ComboBox<String> distanceBox = new ComboBox<>();
@@ -162,19 +170,36 @@ public class AppUIManager<T> {
             if (activeCommand != null) activeCommand.setStrategy(currentStrategy);
         });
 
+        HBox historyBox = new HBox(10);
+
         Button btnUndo = new Button("Undo Command");
         btnUndo.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnUndo, Priority.ALWAYS);
         btnUndo.setOnAction(e -> {
-            if (activeCommand != null) {
-                // שינוי 3: הזרקת הויזואליזר הפעיל גם לפעולת ה-undo!
-                activeCommand.undo(currentVisualizer);
+            if (!undoStack.isEmpty()) {
+                SpaceCommand<T> cmd = undoStack.pop();
+                cmd.undo(multiVisualizer);
+                txtConsole.setText("");
+                redoStack.push(cmd);
             } else {
-                currentVisualizer.clearHighlights();
+                multiVisualizer.clearHighlights();
+                txtConsole.setText("");
             }
-            txtConsole.setText("");
         });
 
-        box.getChildren().addAll(lblDist, distanceBox, btnUndo);
+        Button btnRedo = new Button("Redo Command");
+        btnRedo.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnRedo, Priority.ALWAYS);
+        btnRedo.setOnAction(e -> {
+            if (!redoStack.isEmpty()) {
+                SpaceCommand<T> cmd = redoStack.pop();
+                txtConsole.setText(cmd.execute(multiVisualizer));
+                undoStack.push(cmd);
+            }
+        });
+
+        historyBox.getChildren().addAll(btnUndo, btnRedo);
+        box.getChildren().addAll(lblDist, distanceBox, historyBox);
         return box;
     }
 
@@ -183,12 +208,11 @@ public class AppUIManager<T> {
             int x = Integer.parseInt(pcaX.getText());
             int y = Integer.parseInt(pcaY.getText());
             int z = is3DMode ? Integer.parseInt(pcaZ.getText()) : Integer.MIN_VALUE;
-            currentVisualizer.clearHighlights();
-
-            // שינוי 4 (אם גם PcaCommand עודכן): שולחים את הויזואליזר רק ל-execute
-            // שים לב: אם לא עדכנת את PcaCommand, תחזיר אותו ל-(space, currentVisualizer, x, y, z) ואל תשלח ב-execute
-            String res = new PcaCommand<>(space, x, y, z).execute(currentVisualizer);
+            multiVisualizer.clearHighlights();
+            String res = new PcaCommand<>(space, x, y, z).execute(multiVisualizer);
             txtConsole.setText(res);
+            undoStack.clear();
+            redoStack.clear();
         } catch (Exception e) {
             txtConsole.setText("Error: Invalid PCA inputs.");
         }
