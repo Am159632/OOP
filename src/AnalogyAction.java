@@ -34,8 +34,5 @@ public class AnalogyAction<T> implements AppAction<T> {
 
     }
 
-    @Override
-    public String getName() {
-        return "Analogy";
-    }
+
 }

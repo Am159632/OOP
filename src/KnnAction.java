@@ -38,8 +38,4 @@ public class KnnAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
-    @Override
-    public String getName() {
-        return "Find Neighbors (KNN)";
-    }
 }

@@ -31,8 +31,5 @@ public class CentroidAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
-    @Override
-    public String getName() {
-        return "Centroid (Average)";
-    }
+
 }

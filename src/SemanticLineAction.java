@@ -50,8 +50,4 @@ public class SemanticLineAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
-    @Override
-    public String getName() {
-        return "Semantic Line";
-    }
 }

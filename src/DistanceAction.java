@@ -31,8 +31,5 @@ public class DistanceAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
-    @Override
-    public String getName() {
-        return "Calculate Distance";
-    }
+
 }
