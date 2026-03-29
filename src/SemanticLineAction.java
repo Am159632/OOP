@@ -42,7 +42,7 @@ public class SemanticLineAction<T> implements AppAction<T> {
         sb.append("\nTop ").append(k).append(" closest to '").append(end).append("':\n");
         closeToEnd.forEach(word -> sb.append("- ").append(word).append("\n"));
 
-        return sb.toString();
+        return sb.toString()+" (Distance: " + strategy.toString() + ")";
     }
 
     @Override

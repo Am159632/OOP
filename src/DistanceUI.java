@@ -1,4 +1,3 @@
-import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -6,7 +5,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DistanceUI<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
@@ -70,7 +68,7 @@ public class DistanceUI<T> implements SpaceCommand<T> {
             if (comboW1.getEditor().getText().isEmpty()) {
                 comboW1.getEditor().setText(item.toString());
             } else if (comboW2.getEditor().getText().isEmpty()){
-                comboW2.getEditor().setText(item.toString()); // או comboW2
+                comboW2.getEditor().setText(item.toString());
             }
     }
 }

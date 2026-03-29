@@ -30,7 +30,7 @@ public class KnnAction<T> implements AppAction<T> {
             sb.append(i + 1).append(". ").append(neighbors.get(i).getId())
                     .append(" (Distance: ").append(String.format("%.4f", neighbors.get(i).getDistance())).append(")\n");
         }
-        return sb.toString();
+        return sb.toString()+" (Distance: " + strategy.toString() + ")";
     }
 
     @Override

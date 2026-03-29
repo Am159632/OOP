@@ -11,4 +11,9 @@ public class EuclideanStrategy implements DistanceStrategy {
         }
         return Math.sqrt(sum);
     }
+
+    @Override
+    public String toString(){
+        return "Euclidean distance";
+    }
 }

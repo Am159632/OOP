@@ -23,7 +23,7 @@ public class DistanceAction<T> implements AppAction<T> {
         visualizer.highlightItems(List.of(w1), "#FFD700");
         visualizer.highlightItems(List.of(w2), "#FF69B4");
 
-        return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist);
+        return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist)+" (Distance: " + strategy.toString() + ")";
     }
 
     @Override

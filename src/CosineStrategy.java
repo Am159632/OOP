@@ -15,11 +15,15 @@ public class CosineStrategy implements DistanceStrategy {
             normB += Math.pow(v2[i], 2);
         }
 
-        if (normA == 0 || normB == 0) return 1.0; // הגנה מפני חלוקה באפס
+        if (normA == 0 || normB == 0) return 1.0;
 
         double similarity = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 
-        // ככל שהדמיון (Similarity) קרוב ל-1, המרחק יהיה קרוב ל-0 (כלומר קרובים מאוד!)
         return 1.0 - similarity;
+    }
+
+    @Override
+    public String toString(){
+        return "Cosine distance";
     }
 }
