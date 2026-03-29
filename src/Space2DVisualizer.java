@@ -3,6 +3,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 
 public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
@@ -16,6 +17,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     private final double WIDTH = 800;
     private final double HEIGHT = 700;
     private final double PADDING = 40;
+    private double mouseOldX, mouseOldY;
 
     public Space2DVisualizer() {
         super("2D Dimensional View");
@@ -26,6 +28,23 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         hoverLabel.setVisible(false);
         hoverLabel.setStyle("-fx-background-color: rgba(110, 193, 255, 0.9); -fx-text-fill: #050814; -fx-padding: 4 8; -fx-font-weight: bold; -fx-background-radius: 4;");
         pane.getChildren().add(hoverLabel);
+
+        pane.setOnMousePressed(e -> {
+            mouseOldX = e.getSceneX();
+            mouseOldY = e.getSceneY();
+        });
+
+        pane.setOnMouseDragged(e -> {
+            double deltaX = e.getSceneX() - mouseOldX;
+            double deltaY = e.getSceneY() - mouseOldY;
+
+            pane.setTranslateX(pane.getTranslateX() + deltaX);
+            pane.setTranslateY(pane.getTranslateY() + deltaY);
+
+            mouseOldX = e.getSceneX();
+            mouseOldY = e.getSceneY();
+        });
+
     }
 
     @Override
@@ -76,6 +95,11 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     protected String getDefaultColor() { return "#4a90e2"; }
 
     @Override
+    protected void removeDrawnLine(Node line) {
+        pane.getChildren().remove(line);
+    }
+
+    @Override
     public void clearScene() {
         pane.getChildren().clear();
         pane.getChildren().add(hoverLabel);
@@ -89,5 +113,21 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         double scale = percentage / 75.0;
         getVisualNode().setScaleX(scale);
         getVisualNode().setScaleY(scale);
+    }
+
+    @Override
+    public void drawLine(T source, T target, String colorHex, double thickness) {
+        Circle sourceNode = nodesMap.get(source);
+        Circle targetNode = nodesMap.get(target);
+
+        if (sourceNode == null || targetNode == null) return;
+
+        Line line = new Line(sourceNode.getCenterX(), sourceNode.getCenterY(), targetNode.getCenterX(), targetNode.getCenterY());
+        line.setStroke(Color.web(colorHex));
+        line.setStrokeWidth(thickness);
+        line.setOpacity(0.5);
+
+        drawnLines.add(line);
+        pane.getChildren().add(0, line);
     }
 }

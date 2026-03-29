@@ -32,8 +32,11 @@ public class SemanticLineAction<T> implements AppAction<T> {
         List<T> closeToEnd = projections.stream().skip(Math.max(0, projections.size() - k)).map(ItemDistance::getId).collect(Collectors.toList());
         Collections.reverse(closeToEnd);
 
-        visualizer.highlightItems(closeToStart, "#FF4500");
-        visualizer.highlightItems(closeToEnd, "#32CD32");
+        visualizer.highlightItems(List.of(start, end), "#007BFF");
+        visualizer.highlightItems(closeToStart, "#28A745");
+        visualizer.highlightItems(closeToEnd, "#DC3545");
+
+        visualizer.drawLine(start, end, "#007BFF", 4.0);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Semantic Line: ").append(start).append(" <--> ").append(end).append("\n\n");
@@ -42,7 +45,7 @@ public class SemanticLineAction<T> implements AppAction<T> {
         sb.append("\nTop ").append(k).append(" closest to '").append(end).append("':\n");
         closeToEnd.forEach(word -> sb.append("- ").append(word).append("\n"));
 
-        return sb.toString()+" (Distance: " + strategy.toString() + ")";
+        return sb.toString() + "\n(Strategy: " + strategy.toString() + ")";
     }
 
     @Override
@@ -56,7 +59,6 @@ public class SemanticLineAction<T> implements AppAction<T> {
         if (obj == null || getClass() != obj.getClass()) return false;
 
         SemanticLineAction<?> that = (SemanticLineAction<?>) obj;
-
 
         boolean match = (this.start.equals(that.start) && this.end.equals(that.end));
         boolean op= (this.start.equals(that.end) && this.end.equals(that.start));

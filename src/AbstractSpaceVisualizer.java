@@ -1,4 +1,5 @@
 import javafx.scene.Node;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
 
     protected Map<T, V> nodesMap = new HashMap<>();
     protected Map<T, String> highlightedColors = new HashMap<>();
+    protected List<Node> drawnLines = new ArrayList<>();
     private String viewName;
     private Consumer<T> onNodeClickedListener;
 
@@ -71,11 +73,17 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             }
         }
         highlightedColors.clear();
+
+        for (Node line : drawnLines) {
+            removeDrawnLine(line);
+        }
+        drawnLines.clear();
     }
 
     public void clearSpace() {
         nodesMap.clear();
         highlightedColors.clear();
+        drawnLines.clear();
         clearScene();
     }
 
@@ -113,8 +121,8 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     protected abstract void applyHighlight(V shape, String colorHex);
     protected abstract void removeHighlight(V shape);
     protected abstract String getDefaultColor();
+    protected abstract void removeDrawnLine(Node line);
 
     public abstract void clearScene();
     public abstract Node getVisualNode();
-
 }

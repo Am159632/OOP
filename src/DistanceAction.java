@@ -20,10 +20,10 @@ public class DistanceAction<T> implements AppAction<T> {
         DistanceFunction<T> func = new DistanceFunction<>("FULL", w1, w2);
         double dist = space.executeFunction(func, strategy);
 
-        visualizer.highlightItems(List.of(w1), "#FFD700");
-        visualizer.highlightItems(List.of(w2), "#FF69B4");
+        visualizer.highlightItems(List.of(w1, w2), "#007BFF");
+        visualizer.drawLine(w1, w2, "#FD7E14", 3.0);
 
-        return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist)+" (Distance: " + strategy.toString() + ")";
+        return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist) + " (Strategy: " + strategy.toString() + ")";
     }
 
     @Override

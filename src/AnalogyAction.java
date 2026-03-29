@@ -21,9 +21,14 @@ public class AnalogyAction<T> implements AppAction<T> {
         T result = space.executeFunction(analogyFunc, strategy);
 
         if (result != null) {
-            visualizer.highlightItems(List.of(w1, w2, w3), "#FFA500");
-            visualizer.highlightItems(List.of(result), "#FFD700");
-            return w1 + " - " + w2 + " + " + w3 + " = " + result;
+            visualizer.highlightItems(List.of(w1, w2, w3), "#007BFF");
+            visualizer.highlightItems(List.of(result), "#28A745");
+
+            visualizer.drawLine(w1, w2, "#FD7E14", 2.0);
+            visualizer.drawLine(w2, w3, "#FD7E14", 2.0);
+            visualizer.drawLine(w3, result, "#FD7E14", 2.0);
+
+            return w1 + " - " + w2 + " + " + w3 + " = " + result + " (Strategy: " + strategy.toString() + ")";
         }
         return "No analogy found.";
     }
@@ -31,7 +36,6 @@ public class AnalogyAction<T> implements AppAction<T> {
     @Override
     public void undo() {
         visualizer.clearHighlights();
-
     }
 
     @Override
@@ -47,5 +51,4 @@ public class AnalogyAction<T> implements AppAction<T> {
 
         return w2Equals && w1w3Match && this.strategy.getClass().equals(that.strategy.getClass());
     }
-
 }

@@ -1,8 +1,10 @@
+import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
@@ -85,7 +87,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         sphere.setMaterial(material);
 
         sphere.setOnMouseEntered(e -> {
-            // שימוש ב-applyHighlight לריחוף (Hover)
             applyHighlight(sphere, HOVER_COLOR);
 
             hoverLabel.setText(id.toString());
@@ -97,7 +98,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
 
         sphere.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
-            // החזרה למצב הקודם: מודגש או רגיל
             if (highlightedColors.containsKey(id)) {
                 applyHighlight(sphere, highlightedColors.get(id));
             } else {
@@ -133,8 +133,13 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     }
 
     @Override
+    protected void removeDrawnLine(Node line) {
+        world.getChildren().remove(line);
+    }
+
+    @Override
     public void clearScene() {
-        world.getChildren().removeIf(node -> node instanceof Sphere);
+        world.getChildren().removeIf(node -> node instanceof Sphere || node instanceof Cylinder);
     }
 
     @Override
@@ -148,5 +153,36 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
             double zPos = -3000.0 + (percentage * 20.0);
             camera.setTranslateZ(zPos);
         }
+    }
+
+    @Override
+    public void drawLine(T source, T target, String colorHex, double thickness) {
+        Sphere sourceNode = nodesMap.get(source);
+        Sphere targetNode = nodesMap.get(target);
+
+        if (sourceNode == null || targetNode == null) return;
+
+        Point3D start = new Point3D(sourceNode.getTranslateX(), sourceNode.getTranslateY(), sourceNode.getTranslateZ());
+        Point3D end = new Point3D(targetNode.getTranslateX(), targetNode.getTranslateY(), targetNode.getTranslateZ());
+
+        Point3D diff = end.subtract(start);
+        Point3D mid = start.midpoint(end);
+
+        Cylinder line = new Cylinder(thickness * 0.5, diff.magnitude());
+        line.setTranslateX(mid.getX());
+        line.setTranslateY(mid.getY());
+        line.setTranslateZ(mid.getZ());
+
+        PhongMaterial material = new PhongMaterial(Color.web(colorHex));
+        line.setMaterial(material);
+
+        Point3D yAxis = new Point3D(0, 1, 0);
+        Point3D axisOfRotation = diff.crossProduct(yAxis);
+        double angle = Math.acos(diff.normalize().dotProduct(yAxis));
+        Rotate rotate = new Rotate(-Math.toDegrees(angle), axisOfRotation);
+        line.getTransforms().add(rotate);
+
+        drawnLines.add(line);
+        world.getChildren().add(line);
     }
 }

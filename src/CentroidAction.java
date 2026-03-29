@@ -19,9 +19,14 @@ public class CentroidAction<T> implements AppAction<T> {
         T result = space.executeFunction(centroidFunc, strategy);
 
         if (result != null) {
-            visualizer.highlightItems(group, "#ADD8E6");
-            visualizer.highlightItems(List.of(result), "#FF0000");
-            return "Centroid of the group is: " + result;
+            visualizer.highlightItems(group, "#007BFF");
+            visualizer.highlightItems(List.of(result), "#28A745");
+
+            for (T member : group) {
+                visualizer.drawLine(member, result, "#A9A9A9", 1.0);
+            }
+
+            return "Centroid of the group is: " + result + " (Strategy: " + strategy.toString() + ")";
         }
         return "No centroid found.";
     }
@@ -40,5 +45,4 @@ public class CentroidAction<T> implements AppAction<T> {
 
         return group.containsAll(that.group) && group.size()==that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
     }
-
 }
