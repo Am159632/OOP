@@ -12,7 +12,6 @@ public class PcaCommand<T> {
         this.pcZ = pcZ;
     }
 
-    // הזרקת התלויות הגאונית שלך: מעבירים את הויזואליזר ישר לביצוע
     public String execute(SpaceVisualizer<T> visualizer) {
         try {
             visualizer.clearScene();
@@ -20,7 +19,6 @@ public class PcaCommand<T> {
             Set<T> items = space.getItems("PCA");
             if (items == null || items.isEmpty()) return "No items found.";
 
-            // 1. מציאת גודל המערך (המימד) כדי שנוכל לעשות שארית חלוקה
             int dim = 0;
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
@@ -31,7 +29,6 @@ public class PcaCommand<T> {
             }
             if (dim == 0) return "Error: Vectors are empty or invalid.";
 
-            // 2. הפעלת מודולו (שארית חלוקה) על הצירים
             pcX = (pcX % dim + dim) % dim;
             pcY = (pcY % dim + dim) % dim;
 
