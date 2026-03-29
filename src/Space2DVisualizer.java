@@ -42,14 +42,11 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
             hoverLabel.setLayoutY(y - 25);
             hoverLabel.setVisible(true);
             hoverLabel.toFront();
-
-            // שימוש בפונקציה הקיימת להדגשה בזמן Hover
             applyHighlight(circle, getDefaultColor());
         });
 
         circle.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
-            // בדיקה אם הנקודה צריכה להישאר מודגשת או לחזור למצב רגיל
             if (highlightedColors.containsKey(id)) {
                 applyHighlight(circle, highlightedColors.get(id));
             } else {

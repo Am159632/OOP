@@ -5,6 +5,9 @@ public class HistoryManager<T> {
     private final Stack<AppAction<T>> redoStack = new Stack<>();
 
     public void addAction(AppAction<T> action) {
+        if (!undoStack.isEmpty() && undoStack.peek().equals(action)) {
+            return;
+        }
         undoStack.push(action);
         redoStack.clear();
     }

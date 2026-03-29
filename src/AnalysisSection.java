@@ -16,7 +16,7 @@ public class AnalysisSection<T> implements MenuSection {
     @Override
     public VBox build() {
         VBox box = new VBox(10);
-        Label lblFunc = new Label("2. Analysis Functions");
+        Label lblFunc = new Label("Analysis Functions");
         lblFunc.getStyleClass().add("section-title");
 
         actionBox = new ComboBox<>();
@@ -36,6 +36,7 @@ public class AnalysisSection<T> implements MenuSection {
             try {
                 AppAction<T> action = uiManager.generateActiveAction();
                 if (action != null) {
+                    uiManager.getMultiVisualizer().clearHighlights();
                     String res = action.execute();
                     txtConsole.setText(res);
                     history.addAction(action);

@@ -11,7 +11,7 @@ public class ZoomSection<T> implements MenuSection {
     @Override
     public VBox build() {
         VBox box = new VBox(10);
-        Label lblZoom = new Label("4. Camera Zoom Level");
+        Label lblZoom = new Label("Camera Zoom Level");
         lblZoom.getStyleClass().add("section-title");
 
         Slider zoomSlider = new Slider(1, 100, 50);

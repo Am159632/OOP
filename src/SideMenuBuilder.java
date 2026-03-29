@@ -18,13 +18,16 @@ public class SideMenuBuilder<T> {
 
         MenuSection pcaSection = new PcaSection<>(uiManager, selector, console);
         MenuSection analysisSection = new AnalysisSection<>(uiManager, history, console);
-        MenuSection settingsHistorySection = new SettingsHistorySection<>(uiManager, history, console);
+        MenuSection calcMethodSection = new CalculationMethodSection<>(uiManager);
+        MenuSection settingsHistorySection = new HistorySection<>(uiManager, history, console);
         MenuSection zoomSection = new ZoomSection<>(selector);
 
+        VBox.setVgrow(console, Priority.ALWAYS);
         sideMenu.getChildren().addAll(
                 selector, new Separator(),
                 pcaSection.build(), new Separator(),
                 analysisSection.build(), new Separator(),
+                calcMethodSection.build(), new Separator(),
                 settingsHistorySection.build(), new Separator(),
                 zoomSection.build(), console
         );

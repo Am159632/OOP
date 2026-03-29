@@ -38,4 +38,16 @@ public class KnnAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        KnnAction<?> that = (KnnAction<?>) obj;
+
+        return this.k == that.k &&
+                this.target.equals(that.target) &&
+                this.strategy.getClass().equals(that.strategy.getClass());
+    }
+
 }

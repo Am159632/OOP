@@ -50,4 +50,17 @@ public class SemanticLineAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        SemanticLineAction<?> that = (SemanticLineAction<?>) obj;
+
+
+        boolean match = (this.start.equals(that.start) && this.end.equals(that.end));
+        boolean op= (this.start.equals(that.end) && this.end.equals(that.start));
+
+        return (match||op) && k==that.k && this.strategy.getClass().equals(that.strategy.getClass());
+    }
 }

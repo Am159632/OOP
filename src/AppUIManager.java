@@ -13,7 +13,6 @@ public class AppUIManager<T> {
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
 
-    // --- הזיכרון של המנהל ---
     private HistoryManager<T> history;
     private String pX2D = "0", pY2D = "1";
     private String pX3D = "0", pY3D = "1", pZ3D = "2";
@@ -46,7 +45,6 @@ public class AppUIManager<T> {
             if (activeCommand != null) activeCommand.onNodeClicked(item);
         });
 
-        // יצירת התפריט
         SideMenuBuilder<T> builder = new SideMenuBuilder<>(this, history);
         TextArea txtConsole = new TextArea("System Ready...\n");
         txtConsole.setEditable(false); txtConsole.setWrapText(true); txtConsole.setPrefRowCount(8);

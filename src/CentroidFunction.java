@@ -16,7 +16,6 @@ public class CentroidFunction<T> implements SpaceFunction<T, T> {
         double[] first = space.getVector(spaceName, group.get(0));
         if (first == null) return null;
 
-        // יצירת וקטור לאגירת הסכומים
         double[] sumVec = new double[first.length];
         int count = 0;
 

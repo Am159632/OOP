@@ -31,5 +31,15 @@ public class DistanceAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
+        DistanceAction<?> that = (DistanceAction<?>) obj;
+
+        return this.w1.equals(that.w1) &&
+                this.w2.equals(that.w2) &&
+                this.strategy.getClass().equals(that.strategy.getClass());
+    }
 }

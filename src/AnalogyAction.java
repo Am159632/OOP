@@ -34,5 +34,18 @@ public class AnalogyAction<T> implements AppAction<T> {
 
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        AnalogyAction<?> that = (AnalogyAction<?>) obj;
+
+        boolean w2Equals = this.w2.equals(that.w2);
+        boolean w1w3Match = (this.w1.equals(that.w1) && this.w3.equals(that.w3)) ||
+                (this.w1.equals(that.w3) && this.w3.equals(that.w1));
+
+        return w2Equals && w1w3Match && this.strategy.getClass().equals(that.strategy.getClass());
+    }
 
 }

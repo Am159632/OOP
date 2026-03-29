@@ -31,5 +31,14 @@ public class CentroidAction<T> implements AppAction<T> {
         visualizer.clearHighlights();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        CentroidAction<?> that = (CentroidAction<?>) obj;
+
+        return group.containsAll(that.group) && group.size()==that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
+    }
 
 }

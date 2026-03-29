@@ -16,7 +16,7 @@ public class PcaSection<T> implements MenuSection {
     @Override
     public VBox build() {
         VBox box = new VBox(10);
-        Label lblPca = new Label("1. Load PCA Space");
+        Label lblPca = new Label("Load PCA Space");
         lblPca.getStyleClass().add("section-title");
 
         pcaX = new TextField("0"); pcaX.setPromptText("X Axis");
@@ -25,6 +25,11 @@ public class PcaSection<T> implements MenuSection {
 
         pcaZ.setVisible(false);
         pcaZ.setManaged(false);
+
+        HBox pcaInputs = new HBox(5, pcaX, pcaY, pcaZ);
+        HBox.setHgrow(pcaX, Priority.ALWAYS);
+        HBox.setHgrow(pcaY, Priority.ALWAYS);
+        HBox.setHgrow(pcaZ, Priority.ALWAYS);
 
         viewSelector.setOnAction(e -> {
             SpaceVisualizer<T> selected = viewSelector.getValue();
@@ -51,7 +56,7 @@ public class PcaSection<T> implements MenuSection {
             txtConsole.setText(consoleOutput);
         });
 
-        box.getChildren().addAll(lblPca, pcaX, pcaY, pcaZ, btnPca);
+        box.getChildren().addAll(lblPca, pcaInputs, btnPca);
         return box;
     }
 }
