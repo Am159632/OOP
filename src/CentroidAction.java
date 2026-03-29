@@ -18,7 +18,6 @@ public class CentroidAction<T> implements AppAction<T> {
         CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
         T result = space.executeFunction(centroidFunc, strategy);
 
-        visualizer.clearHighlights();
         if (result != null) {
             visualizer.highlightItems(group, "#ADD8E6");
             visualizer.highlightItems(List.of(result), "#FF0000");

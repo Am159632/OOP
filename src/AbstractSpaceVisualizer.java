@@ -56,7 +56,7 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
         for (T item : items) {
             V shape = nodesMap.get(item);
             if (shape != null) {
-                applyColor(shape, colorHex);
+                applyHighlight(shape, colorHex);
                 highlightedColors.put(item, colorHex);
             }
         }
@@ -66,7 +66,9 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     public void clearHighlights() {
         for (T item : highlightedColors.keySet()) {
             V shape = nodesMap.get(item);
-            if (shape != null) applyColor(shape, getDefaultColor());
+            if (shape != null){
+                removeHighlight(shape);
+            }
         }
         highlightedColors.clear();
     }
@@ -108,7 +110,8 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
 
     protected abstract V createShape(T id, double normX, double normY, double normZ);
     protected abstract void addShapeToScene(V shape);
-    protected abstract void applyColor(V shape, String colorHex);
+    protected abstract void applyHighlight(V shape, String colorHex);
+    protected abstract void removeHighlight(V shape);
     protected abstract String getDefaultColor();
 
     public abstract void clearScene();

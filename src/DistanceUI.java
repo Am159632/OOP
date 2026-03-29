@@ -67,13 +67,10 @@ public class DistanceUI<T> implements SpaceCommand<T> {
 
     @Override
     public void onNodeClicked(T item) {
-        if (comboW1.getEditor().getText().isEmpty()) {
-            comboW1.getEditor().setText(item.toString());
-        } else if (comboW2.getEditor().getText().isEmpty()) {
-            comboW2.getEditor().setText(item.toString());
-        } else {
-            comboW1.getEditor().setText(item.toString());
-            comboW2.getEditor().clear();
-        }
+            if (comboW1.getEditor().getText().isEmpty()) {
+                comboW1.getEditor().setText(item.toString());
+            } else if (comboW2.getEditor().getText().isEmpty()){
+                comboW2.getEditor().setText(item.toString()); // או comboW2
+            }
     }
 }

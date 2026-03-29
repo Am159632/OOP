@@ -20,7 +20,6 @@ public class DistanceAction<T> implements AppAction<T> {
         DistanceFunction<T> func = new DistanceFunction<>("FULL", w1, w2);
         double dist = space.executeFunction(func, strategy);
 
-        visualizer.clearHighlights();
         visualizer.highlightItems(List.of(w1), "#FFD700");
         visualizer.highlightItems(List.of(w2), "#FF69B4");
 

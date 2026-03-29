@@ -7,6 +7,12 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
 public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
+
+    private static final double SCENE_RANGE = 1200.0;
+    private static final double DEFAULT_RADIUS = 7.0;
+    private static final double HIGHLIGHT_RADIUS = 15.0;
+    private static final String HOVER_COLOR = "#FFFF00";
+
     private Group world = new Group();
     private Group cameraPivot = new Group();
     private Pane wrapper;
@@ -15,10 +21,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private Rotate cameraPitch;
     private Rotate cameraYaw;
     private Label hoverLabel;
-
-    private final double SCENE_RANGE = 1200.0;
-    private final double DEFAULT_RADIUS = 7.0;
-    private final double HIGHLIGHT_RADIUS = 15.0;
 
     public Space3DVisualizer() {
         super("3D Dimensional View");
@@ -83,8 +85,8 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         sphere.setMaterial(material);
 
         sphere.setOnMouseEntered(e -> {
-            sphere.setRadius(HIGHLIGHT_RADIUS);
-            material.setDiffuseColor(Color.YELLOW);
+            // שימוש ב-applyHighlight לריחוף (Hover)
+            applyHighlight(sphere, HOVER_COLOR);
 
             hoverLabel.setText(id.toString());
             hoverLabel.setLayoutX(e.getSceneX() + 15);
@@ -95,12 +97,11 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
 
         sphere.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
+            // החזרה למצב הקודם: מודגש או רגיל
             if (highlightedColors.containsKey(id)) {
-                sphere.setRadius(HIGHLIGHT_RADIUS);
-                material.setDiffuseColor(Color.web(highlightedColors.get(id)));
+                applyHighlight(sphere, highlightedColors.get(id));
             } else {
-                sphere.setRadius(DEFAULT_RADIUS);
-                material.setDiffuseColor(Color.web(getDefaultColor()));
+                removeHighlight(sphere);
             }
         });
 
@@ -113,10 +114,17 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     }
 
     @Override
-    protected void applyColor(Sphere shape, String colorHex) {
+    protected void applyHighlight(Sphere shape, String colorHex) {
         PhongMaterial mat = (PhongMaterial) shape.getMaterial();
         mat.setDiffuseColor(Color.web(colorHex));
         shape.setRadius(HIGHLIGHT_RADIUS);
+    }
+
+    @Override
+    protected void removeHighlight(Sphere shape) {
+        PhongMaterial mat = (PhongMaterial) shape.getMaterial();
+        mat.setDiffuseColor(Color.web(getDefaultColor()));
+        shape.setRadius(DEFAULT_RADIUS);
     }
 
     @Override

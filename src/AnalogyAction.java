@@ -20,7 +20,6 @@ public class AnalogyAction<T> implements AppAction<T> {
         AnalogyFunction<T> analogyFunc = new AnalogyFunction<>("FULL", w1, w2, w3);
         T result = space.executeFunction(analogyFunc, strategy);
 
-        visualizer.clearHighlights();
         if (result != null) {
             visualizer.highlightItems(List.of(w1, w2, w3), "#FFA500");
             visualizer.highlightItems(List.of(result), "#FFD700");

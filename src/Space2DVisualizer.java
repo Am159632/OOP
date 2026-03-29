@@ -5,6 +5,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
+
+    private static final double DEFAULT_RADIUS = 3.0;
+    private static final double HIGHLIGHT_RADIUS = 5.0;
+    private static final double DEFAULT_OPACITY = 0.6;
+    private static final double HIGHLIGHT_OPACITY = 1.0;
+
     private Pane pane = new Pane();
     private Label hoverLabel;
     private final double WIDTH = 800;
@@ -20,7 +26,6 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         hoverLabel.setVisible(false);
         hoverLabel.setStyle("-fx-background-color: rgba(110, 193, 255, 0.9); -fx-text-fill: #050814; -fx-padding: 4 8; -fx-font-weight: bold; -fx-background-radius: 4;");
         pane.getChildren().add(hoverLabel);
-
     }
 
     @Override
@@ -28,8 +33,8 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         double x = PADDING + normX * (WIDTH - 2 * PADDING);
         double y = HEIGHT - (PADDING + normY * (HEIGHT - 2 * PADDING));
 
-        Circle circle = new Circle(x, y, 3);
-        circle.setFill(Color.web(getDefaultColor(), 0.6));
+        Circle circle = new Circle(x, y, DEFAULT_RADIUS);
+        circle.setFill(Color.web(getDefaultColor(), DEFAULT_OPACITY));
 
         circle.setOnMouseEntered(e -> {
             hoverLabel.setText(id.toString());
@@ -37,18 +42,18 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
             hoverLabel.setLayoutY(y - 25);
             hoverLabel.setVisible(true);
             hoverLabel.toFront();
-            circle.setFill(Color.web(getDefaultColor(), 1.0));
-            circle.setRadius(5);
+
+            // שימוש בפונקציה הקיימת להדגשה בזמן Hover
+            applyHighlight(circle, getDefaultColor());
         });
 
         circle.setOnMouseExited(e -> {
             hoverLabel.setVisible(false);
+            // בדיקה אם הנקודה צריכה להישאר מודגשת או לחזור למצב רגיל
             if (highlightedColors.containsKey(id)) {
-                circle.setFill(Color.web(highlightedColors.get(id), 1.0));
-                circle.setRadius(5);
+                applyHighlight(circle, highlightedColors.get(id));
             } else {
-                circle.setFill(Color.web(getDefaultColor(), 0.6));
-                circle.setRadius(3);
+                removeHighlight(circle);
             }
         });
 
@@ -59,9 +64,15 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     protected void addShapeToScene(Circle shape) { pane.getChildren().add(shape); }
 
     @Override
-    protected void applyColor(Circle shape, String colorHex) {
-        shape.setFill(Color.web(colorHex, 1.0));
-        shape.setRadius(5);
+    protected void applyHighlight(Circle shape, String colorHex) {
+        shape.setFill(Color.web(colorHex, HIGHLIGHT_OPACITY));
+        shape.setRadius(HIGHLIGHT_RADIUS);
+    }
+
+    @Override
+    protected void removeHighlight(Circle shape) {
+        shape.setFill(Color.web(getDefaultColor(), DEFAULT_OPACITY));
+        shape.setRadius(DEFAULT_RADIUS);
     }
 
     @Override
@@ -75,8 +86,6 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
     @Override
     public Node getVisualNode() { return pane; }
-
-    private static final double ZOOM_FACTOR_2D = 1.15;
 
     @Override
     public void setZoom(double percentage) {

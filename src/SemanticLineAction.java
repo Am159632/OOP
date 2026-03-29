@@ -32,7 +32,6 @@ public class SemanticLineAction<T> implements AppAction<T> {
         List<T> closeToEnd = projections.stream().skip(Math.max(0, projections.size() - k)).map(ItemDistance::getId).collect(Collectors.toList());
         Collections.reverse(closeToEnd);
 
-        visualizer.clearHighlights();
         visualizer.highlightItems(closeToStart, "#FF4500");
         visualizer.highlightItems(closeToEnd, "#32CD32");
 

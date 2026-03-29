@@ -22,7 +22,6 @@ public class KnnAction<T> implements AppAction<T> {
         List<ItemDistance<T>> neighbors = space.executeFunction(knnFunc, strategy);
         List<T> neighborIds = neighbors.stream().map(ItemDistance::getId).collect(Collectors.toList());
 
-        visualizer.clearHighlights();
         visualizer.highlightItems(List.of(target), "#FF0000");
         visualizer.highlightItems(neighborIds, "#32CD32");
 

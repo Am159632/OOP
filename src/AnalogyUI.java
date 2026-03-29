@@ -1,4 +1,3 @@
-import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -6,7 +5,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AnalogyUI<T> implements SpaceCommand<T> {
     private AbstractAnalyzableSpace<T> space;
@@ -73,10 +71,6 @@ public class AnalogyUI<T> implements SpaceCommand<T> {
             comboW2.getEditor().setText(item.toString());
         } else if (comboW3.getEditor().getText().isEmpty()) {
             comboW3.getEditor().setText(item.toString());
-        } else {
-            comboW1.getEditor().setText(item.toString());
-            comboW2.getEditor().clear();
-            comboW3.getEditor().clear();
         }
     }
 }

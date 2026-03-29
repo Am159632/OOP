@@ -69,9 +69,6 @@ public class SemanticLineUI<T> implements SpaceCommand<T> {
             comboStart.getEditor().setText(item.toString());
         } else if (comboEnd.getEditor().getText().isEmpty()) {
             comboEnd.getEditor().setText(item.toString());
-        } else {
-            comboStart.getEditor().setText(item.toString());
-            comboEnd.getEditor().clear();
         }
     }
 }
