@@ -55,7 +55,7 @@ public class AppUIManager<T> {
             if (activeCommand != null) activeCommand.onNodeClicked(item);
         });
 
-        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this, history);
+        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
         TextArea txtConsole = new TextArea("System Ready...\n");
         txtConsole.setEditable(false); txtConsole.setWrapText(true); txtConsole.setPrefRowCount(8);
 
@@ -75,6 +75,7 @@ public class AppUIManager<T> {
     public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
     public Map<String, DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return availableCommands; }
+    public HistoryManager<T> getHistory() { return history; }
 
     public String[] getSavedPcaValues(boolean is3D) {
         if (is3D) return new String[]{pX3D, pY3D, pZ3D};

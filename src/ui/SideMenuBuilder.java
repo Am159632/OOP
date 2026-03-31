@@ -9,11 +9,9 @@ import java.util.List;
 
 public class SideMenuBuilder<T> {
     private AppUIManager<T> uiManager;
-    private HistoryManager<T> history;
 
-    public SideMenuBuilder(AppUIManager<T> uiManager, HistoryManager<T> history) {
+    public SideMenuBuilder(AppUIManager<T> uiManager) {
         this.uiManager = uiManager;
-        this.history = history;
     }
 
     public VBox build(TextArea console, ComboBox<GUIVisualizer<T>> selector) {
@@ -23,9 +21,9 @@ public class SideMenuBuilder<T> {
 
         List<MenuSection> sections = List.of(
                 new PcaSection<>(uiManager, selector, console),
-                new AnalysisSection<>(uiManager, history, console),
+                new AnalysisSection<>(uiManager, uiManager.getHistory(), console),
                 new CalculationMethodSection<>(uiManager),
-                new HistorySection<>(uiManager, history, console),
+                new HistorySection<>(uiManager, uiManager.getHistory(), console),
                 new ZoomSection<>(selector)
         );
 
