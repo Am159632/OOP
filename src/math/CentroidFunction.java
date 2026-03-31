@@ -33,15 +33,13 @@ public class CentroidFunction<T> implements SpaceFunction<T, T> {
 
         if (count == 0) return null;
 
-        // חלוקה בכמות כדי למצוא את הממוצע
         for (int i = 0; i < sumVec.length; i++) sumVec[i] /= count;
 
         T bestMatch = null;
         double minDistance = Double.MAX_VALUE;
 
-        // מציאת המילה הכי קרובה לממוצע
         for (T id : space.getItems(spaceName)) {
-            if (group.contains(id)) continue; // לא רוצים לבחור מילה מתוך הקבוצה עצמה
+            if (group.contains(id)) continue;
 
             double[] currentVec = space.getVector(spaceName, id);
             if (currentVec != null) {

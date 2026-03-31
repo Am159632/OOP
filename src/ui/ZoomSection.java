@@ -1,13 +1,13 @@
 package ui;
 
-import visuals.SpaceVisualizer;
+import visuals.GUIVisualizer;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 public class ZoomSection<T> implements MenuSection {
-    private ComboBox<SpaceVisualizer<T>> viewSelector;
+    private ComboBox<GUIVisualizer<T>> viewSelector;
 
-    public ZoomSection(ComboBox<SpaceVisualizer<T>> viewSelector) {
+    public ZoomSection(ComboBox<GUIVisualizer<T>> viewSelector) {
         this.viewSelector = viewSelector;
     }
 
@@ -23,9 +23,22 @@ public class ZoomSection<T> implements MenuSection {
         zoomSlider.setMajorTickUnit(25);
 
         zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            SpaceVisualizer<T> active = viewSelector.getValue();
-            if (active != null) active.setZoom(newVal.doubleValue());
+            GUIVisualizer<T> active = viewSelector.getValue();
+            if (active != null && Math.abs(active.getCurrentZoom() - newVal.doubleValue()) > 0.1) {
+                active.setZoom(newVal.doubleValue());
+            }
         });
+
+        viewSelector.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                zoomSlider.setValue(newVal.getCurrentZoom());
+                newVal.setOnZoomChanged(val -> zoomSlider.setValue(val));
+            }
+        });
+
+        if (viewSelector.getValue() != null) {
+            viewSelector.getValue().setOnZoomChanged(val -> zoomSlider.setValue(val));
+        }
 
         box.getChildren().addAll(lblZoom, zoomSlider);
         return box;

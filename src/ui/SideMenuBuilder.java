@@ -1,10 +1,11 @@
 package ui;
 
 import actions.HistoryManager;
-import visuals.SpaceVisualizer;
+import visuals.GUIVisualizer;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.List;
 
 public class SideMenuBuilder<T> {
     private AppUIManager<T> uiManager;
@@ -15,26 +16,27 @@ public class SideMenuBuilder<T> {
         this.history = history;
     }
 
-    public VBox build(TextArea console, ComboBox<SpaceVisualizer<T>> selector) {
+    public VBox build(TextArea console, ComboBox<GUIVisualizer<T>> selector) {
         VBox sideMenu = new VBox(15);
         sideMenu.setPadding(new Insets(20));
         sideMenu.setPrefWidth(350);
 
-        MenuSection pcaSection = new PcaSection<>(uiManager, selector, console);
-        MenuSection analysisSection = new AnalysisSection<>(uiManager, history, console);
-        MenuSection calcMethodSection = new CalculationMethodSection<>(uiManager);
-        MenuSection settingsHistorySection = new HistorySection<>(uiManager, history, console);
-        MenuSection zoomSection = new ZoomSection<>(selector);
+        List<MenuSection> sections = List.of(
+                new PcaSection<>(uiManager, selector, console),
+                new AnalysisSection<>(uiManager, history, console),
+                new CalculationMethodSection<>(uiManager),
+                new HistorySection<>(uiManager, history, console),
+                new ZoomSection<>(selector)
+        );
+
+        sideMenu.getChildren().addAll(selector, new Separator());
+
+        for (MenuSection section : sections) {
+            sideMenu.getChildren().addAll(section.build(), new Separator());
+        }
 
         VBox.setVgrow(console, Priority.ALWAYS);
-        sideMenu.getChildren().addAll(
-                selector, new Separator(),
-                pcaSection.build(), new Separator(),
-                analysisSection.build(), new Separator(),
-                calcMethodSection.build(), new Separator(),
-                settingsHistorySection.build(), new Separator(),
-                zoomSection.build(), console
-        );
+        sideMenu.getChildren().add(console);
 
         return sideMenu;
     }

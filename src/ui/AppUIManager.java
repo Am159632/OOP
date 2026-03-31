@@ -30,11 +30,14 @@ public class AppUIManager<T> {
         this.rootPane = new BorderPane();
         this.history = new HistoryManager<>();
 
-        Space2DVisualizer<T> visualizer2D = new Space2DVisualizer<>();
-        Space3DVisualizer<T> visualizer3D = new Space3DVisualizer<>();
-        multiVisualizer = new MultiSpaceVisualizer<>(List.of(visualizer2D, visualizer3D));
+        List<AbstractSpaceVisualizer<T, ?>> activeViews = List.of(
+                new Space2DVisualizer<>(),
+                new Space3DVisualizer<>()
+        );
 
-        centerViewPane = new StackPane(visualizer2D.getVisualNode());
+        multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
+
+        centerViewPane = new StackPane(activeViews.get(0).getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
 
         strategies = new HashMap<>();
@@ -56,15 +59,14 @@ public class AppUIManager<T> {
         TextArea txtConsole = new TextArea("System Ready...\n");
         txtConsole.setEditable(false); txtConsole.setWrapText(true); txtConsole.setPrefRowCount(8);
 
-        ComboBox<SpaceVisualizer<T>> viewSelector = new ComboBox<>();
-        viewSelector.getItems().addAll(visualizer2D, visualizer3D);
-        viewSelector.setValue(visualizer2D);
+        ComboBox<GUIVisualizer<T>> viewSelector = new ComboBox<>();
+        viewSelector.getItems().addAll(activeViews);
+        viewSelector.setValue(activeViews.get(0));
 
         VBox sideMenu = builder.build(txtConsole, viewSelector);
         rootPane.setRight(sideMenu);
         rootPane.setCenter(centerViewPane);
 
-        // הפעלה ראשונית של PCA למצב 2D
         updatePcaLogic("0", "1", "2", false);
     }
 
@@ -74,23 +76,18 @@ public class AppUIManager<T> {
     public Map<String, DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return availableCommands; }
 
-    // --- הלוגיקה החדשה של ה-PCA ---
-    // התפריט מבקש מהמנהל להחזיר לו את הערכים השמורים לכל תצוגה
     public String[] getSavedPcaValues(boolean is3D) {
         if (is3D) return new String[]{pX3D, pY3D, pZ3D};
-        return new String[]{pX2D, pY2D, pZ3D}; // ב-2D ה-Z לא מעניין, אבל מחזירים משהו למנוע שגיאות
+        return new String[]{pX2D, pY2D, pZ3D};
     }
 
-    // המנהל מקבל פקודה, שומר את הסטייט, מריץ, ומחזיר סטרינג נקי של ההדפסה!
     public String updatePcaLogic(String x, String y, String z, boolean is3D) {
-        // 1. שמירת הערכים בזיכרון של המנהל
         if (is3D) {
             pX3D = x; pY3D = y; pZ3D = z;
         } else {
             pX2D = x; pY2D = y;
         }
 
-        // 2. קביעת ה-Z האמיתי שיישלח לחישוב (MIN_VALUE אם זה 2D)
         String realZ = is3D ? z : String.valueOf(Integer.MIN_VALUE);
 
         try {
@@ -101,13 +98,12 @@ public class AppUIManager<T> {
             multiVisualizer.clearHighlights();
             String result = new PcaCommand<>(space, px, py, pz).execute(multiVisualizer);
 
-            // 3. שחזור הסימונים אם הייתה פונקציה כמו KNN שפעלה
             AppAction<T> lastFunc = history.peekUndo();
             if (lastFunc != null) {
                 String funcRes = lastFunc.execute();
-                result += "\n[Re-applied]: " + funcRes; // מוסיפים להדפסה את מה ששוחזר!
+                result += "\n[Re-applied]: " + funcRes;
             }
-            return result; // מחזירים לתפריט את מה שצריך להדפיס
+            return result;
 
         } catch (Exception e) {
             return "Error: Invalid PCA inputs.";

@@ -47,6 +47,10 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
             mouseOldY = e.getSceneY();
         });
 
+        pane.setOnScroll(e -> {
+            updateZoom(currentZoom + (e.getDeltaY() > 0 ? 5 : -5));
+        });
+
     }
 
     @Override
@@ -112,7 +116,9 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
     @Override
     public void setZoom(double percentage) {
-        double scale = percentage / 75.0;
+
+        this.currentZoom = percentage;
+        double scale=percentage/50;
         getVisualNode().setScaleX(scale);
         getVisualNode().setScaleY(scale);
     }

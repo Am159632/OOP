@@ -21,7 +21,6 @@ public class AnalogyFunction<T> implements SpaceFunction<T, T> {
 
         if (v1 == null || v2 == null || v3 == null) return null;
 
-        // חישוב המשוואה: v1 - v2 + v3
         double[] resultVec = new double[v1.length];
         for (int i = 0; i < v1.length; i++) {
             resultVec[i] = v1[i] - v2[i] + v3[i];
@@ -30,9 +29,7 @@ public class AnalogyFunction<T> implements SpaceFunction<T, T> {
         T bestMatch = null;
         double minDistance = Double.MAX_VALUE;
 
-        // מציאת המילה הכי קרובה לתוצאה
         for (T currentId : space.getItems(spaceName)) {
-            // לא רוצים שהתשובה תהיה אחת ממילות השאלה
             if (currentId.equals(word1) || currentId.equals(word2) || currentId.equals(word3)) continue;
 
             double[] currentVec = space.getVector(spaceName, currentId);

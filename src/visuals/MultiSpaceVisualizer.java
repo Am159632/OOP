@@ -54,15 +54,6 @@ public class MultiSpaceVisualizer<T> implements SpaceVisualizer<T> {
     }
 
     @Override
-    public Node getVisualNode() {
-        return null;
-    }
-
-    @Override
-    public void setZoom(double percentage) {
-    }
-
-    @Override
     public void drawLine(T source, T target, String colorHex, double thickness) {
         for (SpaceVisualizer<T> vis : visualizers) vis.drawLine(source,target,colorHex,thickness);
     }

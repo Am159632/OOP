@@ -9,9 +9,9 @@ import java.util.Set;
 
 public class PcaCommand<T> {
     private AbstractAnalyzableSpace<T> space;
-    private int pcX, pcY, pcZ; // הגרפיקה נמחקה מפה!
+    private int pcX, pcY, pcZ;
 
-    // הגרפיקה נמחקה גם מהבנאי!
+
     public PcaCommand(AbstractAnalyzableSpace<T> space, int pcX, int pcY, int pcZ) {
         this.space = space;
         this.pcX = pcX;

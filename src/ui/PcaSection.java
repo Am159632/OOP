@@ -1,16 +1,16 @@
 package ui;
 
-import visuals.SpaceVisualizer;
+import visuals.GUIVisualizer;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 public class PcaSection<T> implements MenuSection {
     private AppUIManager<T> uiManager;
-    private ComboBox<SpaceVisualizer<T>> viewSelector;
+    private ComboBox<GUIVisualizer<T>> viewSelector;
     private TextArea txtConsole;
     private TextField pcaX, pcaY, pcaZ;
 
-    public PcaSection(AppUIManager<T> uiManager, ComboBox<SpaceVisualizer<T>> viewSelector, TextArea txtConsole) {
+    public PcaSection(AppUIManager<T> uiManager, ComboBox<GUIVisualizer<T>> viewSelector, TextArea txtConsole) {
         this.uiManager = uiManager;
         this.viewSelector = viewSelector;
         this.txtConsole = txtConsole;
@@ -35,7 +35,7 @@ public class PcaSection<T> implements MenuSection {
         HBox.setHgrow(pcaZ, Priority.ALWAYS);
 
         viewSelector.setOnAction(e -> {
-            SpaceVisualizer<T> selected = viewSelector.getValue();
+            GUIVisualizer<T> selected = viewSelector.getValue();
             uiManager.getCenterViewPane().getChildren().setAll(selected.getVisualNode());
             boolean is3D = selected.getClass().getSimpleName().contains("3D");
 

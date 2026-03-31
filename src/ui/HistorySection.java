@@ -22,7 +22,7 @@ public class HistorySection<T> implements MenuSection {
         Label lblHistory = new Label("Action History");
         lblHistory.getStyleClass().add("section-title");
 
-        HBox historyBox = new HBox(5); // רווח קטן יותר בין הכפתורים
+        HBox historyBox = new HBox(5);
         Button btnUndo = new Button("Undo"); btnUndo.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(btnUndo, Priority.ALWAYS);
         Button btnRedo = new Button("Redo"); btnRedo.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(btnRedo, Priority.ALWAYS);
         Button btnClear = new Button("Clear"); btnClear.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(btnClear, Priority.ALWAYS);

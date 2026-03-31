@@ -30,7 +30,6 @@ public abstract class AbstractAnalyzableSpace<T> implements AnalyzableSpace<T> {
         return new double[]{vector[dimX], vector[dimY]};
     }
 
-    // הוספנו את זה כדי למשוך וקטור שלם במקום רק קואורדינטות ספציפיות
     public double[] getVector(String spaceName, T id) {
         return getDataSpace().getVector(spaceName, id);
     }

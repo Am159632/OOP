@@ -74,8 +74,9 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
             mouseOldY = e.getSceneY();
         });
 
-        wrapper.setOnScroll(e -> camera.setTranslateZ(camera.getTranslateZ() + e.getDeltaY() * 10));
-    }
+        wrapper.setOnScroll(e -> {
+            updateZoom(currentZoom + (e.getDeltaY() > 0 ? 5 : -5));
+        });    }
 
     @Override
     protected Sphere createShape(T id, double normX, double normY, double normZ) {
@@ -151,8 +152,9 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
 
     @Override
     public void setZoom(double percentage) {
+        this.currentZoom = percentage;
         if (camera != null) {
-            double zPos = -3000.0 + (percentage * 20.0);
+            double zPos = -4500.0 + (percentage * 40.0);
             camera.setTranslateZ(zPos);
         }
     }

@@ -9,13 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class AbstractSpaceVisualizer<T, V extends Node> implements SpaceVisualizer<T> {
+public abstract class AbstractSpaceVisualizer<T, V extends Node> implements SpaceVisualizer<T>,GUIVisualizer<T>{
 
     protected Map<T, V> nodesMap = new HashMap<>();
     protected Map<T, String> highlightedColors = new HashMap<>();
     protected List<Node> drawnLines = new ArrayList<>();
     private String viewName;
     private Consumer<T> onNodeClickedListener;
+    protected double currentZoom = 50.0;
+    protected Consumer<Double> onZoomChanged;
 
     public AbstractSpaceVisualizer(String viewName) {
         this.viewName = viewName;
@@ -113,6 +115,25 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             }
         }
         return maxs;
+    }
+
+    @Override
+    public double getCurrentZoom() {
+        return currentZoom;
+    }
+
+    @Override
+    public void setOnZoomChanged(Consumer<Double> listener) {
+        this.onZoomChanged = listener;
+    }
+
+    protected void updateZoom(double newZoom) {
+        currentZoom = Math.max(1, Math.min(100, newZoom));
+        setZoom(currentZoom);
+
+        if (onZoomChanged != null) {
+            onZoomChanged.accept(currentZoom);
+        }
     }
 
     @Override

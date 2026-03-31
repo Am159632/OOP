@@ -14,10 +14,8 @@ public interface SpaceVisualizer<T> {
     void highlightItems(List<T> items, String colorHex);
     void clearHighlights();
     void clearSpace();
-    Node getVisualNode();
     void clearScene();
     void drawNode(T id, double normX, double normY, double normZ);
     void setOnNodeClicked(Consumer<T> listener);
-    void setZoom(double percentage);
     void drawLine(T source, T target, String colorHex, double thickness);
 }
