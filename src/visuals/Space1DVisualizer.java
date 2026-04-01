@@ -6,47 +6,51 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
-public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
+public class Space1DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
-    private static final double DEFAULT_RADIUS = 3.0;
-    private static final double HIGHLIGHT_RADIUS = 5.0;
-    private static final double DEFAULT_OPACITY = 0.6;
+    private static final double DEFAULT_RADIUS = 4.0;
+    private static final double HIGHLIGHT_RADIUS = 7.0;
+    private static final double DEFAULT_OPACITY = 0.7;
     private static final double HIGHLIGHT_OPACITY = 1.0;
 
     private Pane pane = new Pane();
     private final double WIDTH = 800;
     private final double HEIGHT = 700;
     private final double PADDING = 40;
-    private double mouseOldX, mouseOldY;
+    private double mouseOldX;
 
-    public Space2DVisualizer() {
-        super("2D Dimensional View");
+    public Space1DVisualizer() {
+        super("1D Dimensional View");
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setStyle("-fx-background-color: transparent;");
-        pane.getChildren().add(hoverLabel); // מוסיפים את התווית מהאבא
 
-        pane.setOnMousePressed(e -> {
-            mouseOldX = e.getSceneX();
-            mouseOldY = e.getSceneY();
-        });
+        drawBaseAxis();
+        pane.getChildren().add(hoverLabel);
 
+        pane.setOnMousePressed(e -> mouseOldX = e.getSceneX());
         pane.setOnMouseDragged(e -> {
-            pane.setTranslateX(pane.getTranslateX() + (e.getSceneX() - mouseOldX));
-            pane.setTranslateY(pane.getTranslateY() + (e.getSceneY() - mouseOldY));
+            double deltaX = e.getSceneX() - mouseOldX;
+            pane.setTranslateX(pane.getTranslateX() + deltaX);
             mouseOldX = e.getSceneX();
-            mouseOldY = e.getSceneY();
         });
 
         pane.setOnScroll(e -> updateZoom(currentZoom + (e.getDeltaY() > 0 ? 5 : -5)));
     }
 
+    private void drawBaseAxis() {
+        Line axisLine = new Line(PADDING, HEIGHT / 2, WIDTH - PADDING, HEIGHT / 2);
+        axisLine.setStroke(Color.LIGHTGRAY);
+        axisLine.setStrokeWidth(2.0);
+        pane.getChildren().add(axisLine);
+    }
+
     @Override
     protected Circle createShape(T id, double normX, double normY, double normZ) {
         double x = PADDING + normX * (WIDTH - 2 * PADDING);
-        double y = HEIGHT - (PADDING + normY * (HEIGHT - 2 * PADDING));
+        double y = HEIGHT / 2;
         Circle circle = new Circle(x, y, DEFAULT_RADIUS);
         circle.setFill(Color.web(getDefaultColor(), DEFAULT_OPACITY));
-        return circle; // נקי ופשוט!
+        return circle;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     }
 
     @Override
-    protected String getDefaultColor() { return "#4a90e2"; }
+    protected String getDefaultColor() { return "#9b59b6"; }
 
     @Override
     protected void removeDrawnLine(Node line) { pane.getChildren().remove(line); }
@@ -73,6 +77,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     @Override
     public void clearScene() {
         pane.getChildren().clear();
+        drawBaseAxis();
         pane.getChildren().add(hoverLabel);
     }
 
@@ -82,9 +87,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     @Override
     public void setZoom(double percentage) {
         this.currentZoom = percentage;
-        double scale = percentage / 50.0;
-        getVisualNode().setScaleX(scale);
-        getVisualNode().setScaleY(scale);
+        getVisualNode().setScaleX(percentage / 50.0);
     }
 
     @Override
@@ -95,10 +98,9 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 
         Line line = new Line(sourceNode.getCenterX(), sourceNode.getCenterY(), targetNode.getCenterX(), targetNode.getCenterY());
         line.setStroke(Color.web(colorHex));
-        line.setStroke(Color.web(colorHex));
         line.setStrokeWidth(thickness);
         line.setOpacity(0.5);
         drawnLines.add(line);
-        pane.getChildren().add(0, line);
+        pane.getChildren().add(1, line);
     }
 }

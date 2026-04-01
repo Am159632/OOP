@@ -3,6 +3,8 @@ package visuals;
 import core.*;
 
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +20,15 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     private Consumer<T> onNodeClickedListener;
     protected double currentZoom = 50.0;
     protected Consumer<Double> onZoomChanged;
+    protected Label hoverLabel;
 
     public AbstractSpaceVisualizer(String viewName) {
+
         this.viewName = viewName;
+        hoverLabel = new Label();
+        hoverLabel.setVisible(false);
+        hoverLabel.setMouseTransparent(true);
+        hoverLabel.setStyle("-fx-background-color: rgba(110, 193, 255, 0.9); -fx-text-fill: #050814; -fx-padding: 4 8; -fx-font-weight: bold; -fx-background-radius: 4;");
     }
 
     @Override
@@ -54,6 +62,25 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
                 onNodeClickedListener.accept(id);
             }
         });
+
+        shape.setOnMouseEntered(e -> {
+            applyHighlight(shape, "#FFFF00");
+            hoverLabel.setText(id.toString());
+            hoverLabel.setLayoutX(e.getSceneX() + 15);
+            hoverLabel.setLayoutY(e.getSceneY() - 30);
+            hoverLabel.setVisible(true);
+            hoverLabel.toFront();
+        });
+
+        shape.setOnMouseExited(e -> {
+            hoverLabel.setVisible(false);
+            if (highlightedColors.containsKey(id)) {
+                applyHighlight(shape, highlightedColors.get(id));
+            } else {
+                removeHighlight(shape);
+            }
+        });
+
 
         addShapeToScene(shape);
         nodesMap.put(id, shape);
@@ -147,7 +174,6 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     protected abstract void removeHighlight(V shape);
     protected abstract String getDefaultColor();
     protected abstract void removeDrawnLine(Node line);
-
     public abstract void clearScene();
     public abstract Node getVisualNode();
 }

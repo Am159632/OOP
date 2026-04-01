@@ -2,7 +2,6 @@ package visuals;
 
 import javafx.geometry.Point3D;
 import javafx.scene.*;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -15,7 +14,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private static final double SCENE_RANGE = 1200.0;
     private static final double DEFAULT_RADIUS = 7.0;
     private static final double HIGHLIGHT_RADIUS = 15.0;
-    private static final String HOVER_COLOR = "#FFFF00";
 
     private Group world = new Group();
     private Group cameraPivot = new Group();
@@ -24,7 +22,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private PerspectiveCamera camera;
     private Rotate cameraPitch;
     private Rotate cameraYaw;
-    private Label hoverLabel;
 
     public Space3DVisualizer() {
         super("3D Dimensional View");
@@ -53,11 +50,6 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         wrapper = new Pane(subScene);
         subScene.widthProperty().bind(wrapper.widthProperty());
         subScene.heightProperty().bind(wrapper.heightProperty());
-
-        hoverLabel = new Label();
-        hoverLabel.setVisible(false);
-        hoverLabel.setMouseTransparent(true);
-        hoverLabel.setStyle("-fx-background-color: rgba(110, 193, 255, 0.9); -fx-text-fill: #050814; -fx-padding: 4 8; -fx-font-weight: bold; -fx-background-radius: 4;");
         wrapper.getChildren().add(hoverLabel);
 
         wrapper.setOnMousePressed(e -> {
@@ -66,55 +58,29 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         });
 
         wrapper.setOnMouseDragged(e -> {
-            double deltaX = e.getSceneX() - mouseOldX;
-            double deltaY = e.getSceneY() - mouseOldY;
-            cameraYaw.setAngle(cameraYaw.getAngle() + deltaX * 0.2);
-            cameraPitch.setAngle(cameraPitch.getAngle() - deltaY * 0.2);
+            cameraYaw.setAngle(cameraYaw.getAngle() + (e.getSceneX() - mouseOldX) * 0.2);
+            cameraPitch.setAngle(cameraPitch.getAngle() - (e.getSceneY() - mouseOldY) * 0.2);
             mouseOldX = e.getSceneX();
             mouseOldY = e.getSceneY();
         });
 
-        wrapper.setOnScroll(e -> {
-            updateZoom(currentZoom + (e.getDeltaY() > 0 ? 5 : -5));
-        });    }
+        wrapper.setOnScroll(e -> updateZoom(currentZoom + (e.getDeltaY() > 0 ? 5 : -5)));
+    }
 
     @Override
     protected Sphere createShape(T id, double normX, double normY, double normZ) {
         Sphere sphere = new Sphere(DEFAULT_RADIUS, 12);
-
         sphere.setTranslateX((normX - 0.5) * SCENE_RANGE);
         sphere.setTranslateY((normY - 0.5) * SCENE_RANGE);
         sphere.setTranslateZ((normZ - 0.5) * SCENE_RANGE);
 
         PhongMaterial material = new PhongMaterial(Color.web(getDefaultColor()));
         sphere.setMaterial(material);
-
-        sphere.setOnMouseEntered(e -> {
-            applyHighlight(sphere, HOVER_COLOR);
-
-            hoverLabel.setText(id.toString());
-            hoverLabel.setLayoutX(e.getSceneX() + 15);
-            hoverLabel.setLayoutY(e.getSceneY() - 30);
-            hoverLabel.setVisible(true);
-            hoverLabel.toFront();
-        });
-
-        sphere.setOnMouseExited(e -> {
-            hoverLabel.setVisible(false);
-            if (highlightedColors.containsKey(id)) {
-                applyHighlight(sphere, highlightedColors.get(id));
-            } else {
-                removeHighlight(sphere);
-            }
-        });
-
         return sphere;
     }
 
     @Override
-    protected void addShapeToScene(Sphere shape) {
-        world.getChildren().add(shape);
-    }
+    protected void addShapeToScene(Sphere shape) { world.getChildren().add(shape); }
 
     @Override
     protected void applyHighlight(Sphere shape, String colorHex) {
@@ -131,14 +97,10 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     }
 
     @Override
-    protected String getDefaultColor() {
-        return "#4a90e2";
-    }
+    protected String getDefaultColor() { return "#4a90e2"; }
 
     @Override
-    protected void removeDrawnLine(Node line) {
-        world.getChildren().remove(line);
-    }
+    protected void removeDrawnLine(Node line) { world.getChildren().remove(line); }
 
     @Override
     public void clearScene() {
@@ -146,16 +108,13 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     }
 
     @Override
-    public Node getVisualNode() {
-        return wrapper;
-    }
+    public Node getVisualNode() { return wrapper; }
 
     @Override
     public void setZoom(double percentage) {
         this.currentZoom = percentage;
         if (camera != null) {
-            double zPos = -4500.0 + (percentage * 40.0);
-            camera.setTranslateZ(zPos);
+            camera.setTranslateZ(-4500.0 + (percentage * 40.0));
         }
     }
 
@@ -163,12 +122,10 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     public void drawLine(T source, T target, String colorHex, double thickness) {
         Sphere sourceNode = nodesMap.get(source);
         Sphere targetNode = nodesMap.get(target);
-
         if (sourceNode == null || targetNode == null) return;
 
         Point3D start = new Point3D(sourceNode.getTranslateX(), sourceNode.getTranslateY(), sourceNode.getTranslateZ());
         Point3D end = new Point3D(targetNode.getTranslateX(), targetNode.getTranslateY(), targetNode.getTranslateZ());
-
         Point3D diff = end.subtract(start);
         Point3D mid = start.midpoint(end);
 
@@ -176,15 +133,12 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
         line.setTranslateX(mid.getX());
         line.setTranslateY(mid.getY());
         line.setTranslateZ(mid.getZ());
-
-        PhongMaterial material = new PhongMaterial(Color.web(colorHex));
-        line.setMaterial(material);
+        line.setMaterial(new PhongMaterial(Color.web(colorHex)));
 
         Point3D yAxis = new Point3D(0, 1, 0);
         Point3D axisOfRotation = diff.crossProduct(yAxis);
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
-        Rotate rotate = new Rotate(-Math.toDegrees(angle), axisOfRotation);
-        line.getTransforms().add(rotate);
+        line.getTransforms().add(new Rotate(-Math.toDegrees(angle), axisOfRotation));
 
         drawnLines.add(line);
         world.getChildren().add(line);
