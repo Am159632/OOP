@@ -1,6 +1,9 @@
 package math;
 
+import core.ItemDistance;
 import core.SpaceComponent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnalogyFunction<T> implements SpaceFunction<T, T> {
     private String spaceName;
@@ -26,21 +29,10 @@ public class AnalogyFunction<T> implements SpaceFunction<T, T> {
             resultVec[i] = v1[i] - v2[i] + v3[i];
         }
 
-        T bestMatch = null;
-        double minDistance = Double.MAX_VALUE;
+        List<T> wordsToSkip = List.of(word1, word2, word3);
 
-        for (T currentId : space.getItems(spaceName)) {
-            if (currentId.equals(word1) || currentId.equals(word2) || currentId.equals(word3)) continue;
+        List<ItemDistance<T>> closest = SimilaritySearcher.findKClosest(resultVec, wordsToSkip, space, strategy, spaceName, 1);
 
-            double[] currentVec = space.getVector(spaceName, currentId);
-            if (currentVec != null) {
-                double dist = strategy.calculate(resultVec, currentVec);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    bestMatch = currentId;
-                }
-            }
-        }
-        return bestMatch;
+        return closest.isEmpty() ? null : closest.get(0).getId();
     }
 }

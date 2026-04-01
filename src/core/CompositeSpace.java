@@ -43,11 +43,4 @@ public class CompositeSpace<T> implements SpaceComponent<T> {
         return null;
     }
 
-    @Override
-    public void printSpaceInfo() {
-        System.out.println("+ Composite Space: [" + compositeName + "]");
-        for (SpaceComponent<T> child : children) {
-            child.printSpaceInfo();
-        }
-    }
 }

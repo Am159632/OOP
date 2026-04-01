@@ -24,7 +24,7 @@ public class Space3DVisualizer<T> extends AbstractSpaceVisualizer<T, Sphere> {
     private Rotate cameraYaw;
 
     public Space3DVisualizer() {
-        super("3D Dimensional View");
+        super("3D Dimensional View",3);
         world.getChildren().add(new AmbientLight(Color.rgb(220, 220, 220)));
 
         PointLight headlamp = new PointLight(Color.WHITE);

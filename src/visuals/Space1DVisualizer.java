@@ -20,7 +20,7 @@ public class Space1DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     private double mouseOldX;
 
     public Space1DVisualizer() {
-        super("1D Dimensional View");
+        super("1D Dimensional View",1);
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setStyle("-fx-background-color: transparent;");
 

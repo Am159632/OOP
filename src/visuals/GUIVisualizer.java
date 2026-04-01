@@ -8,4 +8,5 @@ public interface GUIVisualizer<T> {
     void setZoom(double percentage);
     double getCurrentZoom();
     void setOnZoomChanged(Consumer<Double> listener);
+    int getDimensions();
 }

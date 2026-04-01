@@ -1,7 +1,8 @@
 package math;
 
+import core.ItemDistance;
 import core.SpaceComponent;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class CentroidFunction<T> implements SpaceFunction<T, T> {
@@ -35,21 +36,8 @@ public class CentroidFunction<T> implements SpaceFunction<T, T> {
 
         for (int i = 0; i < sumVec.length; i++) sumVec[i] /= count;
 
-        T bestMatch = null;
-        double minDistance = Double.MAX_VALUE;
+        List<ItemDistance<T>> closest = SimilaritySearcher.findKClosest(sumVec, new ArrayList<>(), space, strategy, spaceName, 1);
 
-        for (T id : space.getItems(spaceName)) {
-            if (group.contains(id)) continue;
-
-            double[] currentVec = space.getVector(spaceName, id);
-            if (currentVec != null) {
-                double dist = strategy.calculate(sumVec, currentVec);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    bestMatch = id;
-                }
-            }
-        }
-        return bestMatch;
+        return closest.isEmpty() ? null : closest.get(0).getId();
     }
 }

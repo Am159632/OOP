@@ -34,8 +34,4 @@ public class SingleSpace<T> implements SpaceComponent<T> {
         return null;
     }
 
-    @Override
-    public void printSpaceInfo() {
-        System.out.println("   - Space: [" + name + "] contains " + data.size() + " items.");
-    }
 }

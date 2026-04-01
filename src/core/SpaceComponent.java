@@ -10,6 +10,4 @@ public interface SpaceComponent<T> {
 
     Set<T> getItems(String spaceName);
 
-    void printSpaceInfo();
-
 }

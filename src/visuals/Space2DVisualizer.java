@@ -20,10 +20,10 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
     private double mouseOldX, mouseOldY;
 
     public Space2DVisualizer() {
-        super("2D Dimensional View");
+        super("2D Dimensional View",2);
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setStyle("-fx-background-color: transparent;");
-        pane.getChildren().add(hoverLabel); // מוסיפים את התווית מהאבא
+        pane.getChildren().add(hoverLabel);
 
         pane.setOnMousePressed(e -> {
             mouseOldX = e.getSceneX();

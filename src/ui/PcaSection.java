@@ -3,17 +3,23 @@ package ui;
 import visuals.GUIVisualizer;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PcaSection<T> implements MenuSection {
     private AppUIManager<T> uiManager;
     private ComboBox<GUIVisualizer<T>> viewSelector;
     private TextArea txtConsole;
-    private TextField pcaX, pcaY, pcaZ;
+
+    private HBox pcaInputsBox;
+    private List<TextField> currentFields;
 
     public PcaSection(AppUIManager<T> uiManager, ComboBox<GUIVisualizer<T>> viewSelector, TextArea txtConsole) {
         this.uiManager = uiManager;
         this.viewSelector = viewSelector;
         this.txtConsole = txtConsole;
+        this.pcaInputsBox = new HBox(5);
+        this.currentFields = new ArrayList<>();
     }
 
     @Override
@@ -22,44 +28,47 @@ public class PcaSection<T> implements MenuSection {
         Label lblPca = new Label("Load PCA Space");
         lblPca.getStyleClass().add("section-title");
 
-        pcaX = new TextField("0"); pcaX.setPromptText("X Axis");
-        pcaY = new TextField("1"); pcaY.setPromptText("Y Axis");
-        pcaZ = new TextField("2"); pcaZ.setPromptText("Z Axis");
-
-        pcaZ.setVisible(false);
-        pcaZ.setManaged(false);
-
-        HBox pcaInputs = new HBox(5, pcaX, pcaY, pcaZ);
-        HBox.setHgrow(pcaX, Priority.ALWAYS);
-        HBox.setHgrow(pcaY, Priority.ALWAYS);
-        HBox.setHgrow(pcaZ, Priority.ALWAYS);
-
-        viewSelector.setOnAction(e -> {
-            GUIVisualizer<T> selected = viewSelector.getValue();
-            uiManager.getCenterViewPane().getChildren().setAll(selected.getVisualNode());
-            boolean is3D = selected.getClass().getSimpleName().contains("3D");
-
-            pcaZ.setVisible(is3D);
-            pcaZ.setManaged(is3D);
-
-            String[] savedVals = uiManager.getSavedPcaValues(is3D);
-            pcaX.setText(savedVals[0]);
-            pcaY.setText(savedVals[1]);
-            if (is3D) pcaZ.setText(savedVals[2]);
-
-            String consoleOutput = uiManager.updatePcaLogic(pcaX.getText(), pcaY.getText(), pcaZ.getText(), is3D);
-            txtConsole.setText(consoleOutput);
-        });
-
         Button btnPca = new Button("Execute PCA");
         btnPca.setMaxWidth(Double.MAX_VALUE);
-        btnPca.setOnAction(e -> {
-            boolean is3D = pcaZ.isVisible();
-            String consoleOutput = uiManager.updatePcaLogic(pcaX.getText(), pcaY.getText(), pcaZ.getText(), is3D);
-            txtConsole.setText(consoleOutput);
+
+        viewSelector.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                uiManager.getCenterViewPane().getChildren().setAll(newVal.getVisualNode());
+                rebuildInputFields(newVal.getDimensions());
+                executePca();
+            }
         });
 
-        box.getChildren().addAll(lblPca, pcaInputs, btnPca);
+        btnPca.setOnAction(e -> executePca());
+
+        box.getChildren().addAll(lblPca, pcaInputsBox, btnPca);
+        GUIVisualizer<T> initialView = viewSelector.getValue();
+        if (initialView != null) {
+            rebuildInputFields(initialView.getDimensions());
+        }
         return box;
+    }
+
+    private void rebuildInputFields(int dimensions) {
+        pcaInputsBox.getChildren().clear();
+        currentFields.clear();
+
+        String[] savedVals = uiManager.getSavedPcaValues(dimensions);
+        String[] axisLabels = {"X Axis", "Y Axis", "Z Axis", "W Axis"};
+
+        for (int i = 0; i < dimensions; i++) {
+            TextField tf = new TextField(savedVals[i]);
+            tf.setPromptText(axisLabels[i]);
+            HBox.setHgrow(tf, Priority.ALWAYS);
+
+            currentFields.add(tf);
+            pcaInputsBox.getChildren().add(tf);
+        }
+    }
+
+    private void executePca() {
+        String[] axes = currentFields.stream().map(TextField::getText).toArray(String[]::new);
+        String consoleOutput = uiManager.updatePcaLogic(axes);
+        txtConsole.setText(consoleOutput);
     }
 }

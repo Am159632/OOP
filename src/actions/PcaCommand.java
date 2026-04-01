@@ -1,31 +1,33 @@
 package actions;
 
 import core.*;
-import math.*;
 import visuals.*;
-import ui.*;
-
+import java.util.Arrays;
 import java.util.Set;
 
 public class PcaCommand<T> {
     private AbstractAnalyzableSpace<T> space;
-    private int pcX, pcY, pcZ;
+    private int[] targetAxes; // הכל הופך למערך דינמי אחד!
 
-
-    public PcaCommand(AbstractAnalyzableSpace<T> space, int pcX, int pcY, int pcZ) {
+    // הבנאי עכשיו מקבל מערך של צירים (varargs)
+    public PcaCommand(AbstractAnalyzableSpace<T> space, int... targetAxes) {
         this.space = space;
-        this.pcX = pcX;
-        this.pcY = pcY;
-        this.pcZ = pcZ;
+        this.targetAxes = targetAxes;
     }
 
     public String execute(SpaceVisualizer<T> visualizer) {
         try {
-            visualizer.clearScene();
+            // תיקון Decoupling: מנקים את כל החלל כולל המילונים, ולא רק את המסך הגרפי
+            if (visualizer instanceof AbstractSpaceVisualizer) {
+                ((AbstractSpaceVisualizer<?, ?>) visualizer).clearSpace();
+            } else {
+                visualizer.clearScene();
+            }
 
             Set<T> items = space.getItems("PCA");
             if (items == null || items.isEmpty()) return "No items found.";
 
+            // מציאת גודל הוקטור (המימד האמיתי של הנתונים)
             int dim = 0;
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
@@ -36,45 +38,49 @@ public class PcaCommand<T> {
             }
             if (dim == 0) return "Error: Vectors are empty or invalid.";
 
-            pcX = (pcX % dim + dim) % dim;
-            pcY = (pcY % dim + dim) % dim;
-
-            boolean is2D = (pcZ == Integer.MIN_VALUE);
-
-            if (!is2D) {
-                pcZ = (pcZ % dim + dim) % dim;
+            // תיקון מתמטי: מסדרים רק את הצירים שבאמת קיבלנו! אין יותר Integer.MIN_VALUE
+            for (int i = 0; i < targetAxes.length; i++) {
+                targetAxes[i] = (targetAxes[i] % dim + dim) % dim;
             }
 
-            double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE;
-            double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
-            double minZ = Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+            // מערכים דינמיים לחישוב מינימום ומקסימום - DRY במיטבו
+            double[] mins = new double[targetAxes.length];
+            double[] maxs = new double[targetAxes.length];
+            Arrays.fill(mins, Double.MAX_VALUE);
+            Arrays.fill(maxs, -Double.MAX_VALUE);
 
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
                 if (vector != null && vector.length >= dim) {
-                    minX = Math.min(minX, vector[pcX]); maxX = Math.max(maxX, vector[pcX]);
-                    minY = Math.min(minY, vector[pcY]); maxY = Math.max(maxY, vector[pcY]);
-                    if (pcZ >= 0) { minZ = Math.min(minZ, vector[pcZ]); maxZ = Math.max(maxZ, vector[pcZ]); }
+                    for (int i = 0; i < targetAxes.length; i++) {
+                        mins[i] = Math.min(mins[i], vector[targetAxes[i]]);
+                        maxs[i] = Math.max(maxs[i], vector[targetAxes[i]]);
+                    }
                 }
             }
 
+            // נרמול וציור
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
                 if (vector != null && vector.length >= dim) {
-                    double normX = (maxX == minX) ? 0.5 : (vector[pcX] - minX) / (maxX - minX);
-                    double normY = (maxY == minY) ? 0.5 : (vector[pcY] - minY) / (maxY - minY);
-                    double normZ = (!is2D) ? ((maxZ == minZ) ? 0.5 : (vector[pcZ] - minZ) / (maxZ - minZ)) : 0.5;
+                    // אם אין ציר (למשל במימד 1), הוא אוטומטית מקבל 0.5 (ממורכז) בלי חישובי זבל
+                    double normX = targetAxes.length > 0 ? normalize(vector[targetAxes[0]], mins[0], maxs[0]) : 0.5;
+                    double normY = targetAxes.length > 1 ? normalize(vector[targetAxes[1]], mins[1], maxs[1]) : 0.5;
+                    double normZ = targetAxes.length > 2 ? normalize(vector[targetAxes[2]], mins[2], maxs[2]) : 0.5;
 
                     visualizer.drawNode(item, normX, normY, normZ);
                 }
             }
 
-            String zText = (pcZ >= 0) ? (", Z=" + pcZ) : "";
-            return "PCA Space loaded: X=" + pcX + ", Y=" + pcY + zText;
+            return "PCA Space loaded with axes: " + Arrays.toString(targetAxes);
 
         } catch (Exception e) {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
+    }
+
+    private double normalize(double val, double min, double max) {
+        return (max == min) ? 0.5 : (val - min) / (max - min);
     }
 }

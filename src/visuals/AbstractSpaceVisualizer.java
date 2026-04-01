@@ -21,10 +21,12 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
     protected double currentZoom = 50.0;
     protected Consumer<Double> onZoomChanged;
     protected Label hoverLabel;
+    private int dimensions;
 
-    public AbstractSpaceVisualizer(String viewName) {
+    public AbstractSpaceVisualizer(String viewName, int dimensions) {
 
         this.viewName = viewName;
+        this.dimensions = dimensions;
         hoverLabel = new Label();
         hoverLabel.setVisible(false);
         hoverLabel.setMouseTransparent(true);
@@ -162,6 +164,9 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
             onZoomChanged.accept(currentZoom);
         }
     }
+
+    @Override
+    public int getDimensions() { return dimensions; }
 
     @Override
     public String toString() {

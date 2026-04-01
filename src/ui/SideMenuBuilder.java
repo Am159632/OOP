@@ -5,6 +5,7 @@ import visuals.GUIVisualizer;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SideMenuBuilder<T> {
@@ -19,15 +20,21 @@ public class SideMenuBuilder<T> {
         sideMenu.setPadding(new Insets(20));
         sideMenu.setPrefWidth(350);
 
-        List<MenuSection> sections = List.of(
-                new PcaSection<>(uiManager, selector, console),
-                new AnalysisSection<>(uiManager, uiManager.getHistory(), console),
-                new CalculationMethodSection<>(uiManager),
-                new HistorySection<>(uiManager, uiManager.getHistory(), console),
-                new ZoomSection<>(selector)
-        );
-
         sideMenu.getChildren().addAll(selector, new Separator());
+
+        List<MenuSection> sections = new ArrayList<>();
+
+        sections.add(new PcaSection<>(uiManager, selector, console));
+
+        if (uiManager.isZoomEnabled()) {
+            sections.add(new ZoomSection<>(selector));
+        }
+
+        if (!uiManager.getStrategies().isEmpty() && !uiManager.getAvailableCommands().isEmpty()) {
+            sections.add(new AnalysisSection<>(uiManager, uiManager.getHistory(), console));
+            sections.add(new CalculationMethodSection<>(uiManager));
+            sections.add(new HistorySection<>(uiManager, uiManager.getHistory(), console));
+        }
 
         for (MenuSection section : sections) {
             sideMenu.getChildren().addAll(section.build(), new Separator());

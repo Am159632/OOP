@@ -19,37 +19,32 @@ public class AppUIManager<T> {
     private DistanceStrategy currentStrategy;
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
+    private boolean enableZoom;
 
     private HistoryManager<T> history;
-    private String pX2D = "0", pY2D = "1";
-    private String pX3D = "0", pY3D = "1", pZ3D = "2";
+    private Map<Integer, String[]> pcaHistory = new HashMap<>();
 
-    public AppUIManager(AbstractAnalyzableSpace<T> space, DistanceStrategy defaultStrategy, List<T> vocabulary) {
+    public AppUIManager(AbstractAnalyzableSpace<T> space,
+                        Map<String, DistanceStrategy> providedStrategies,
+                        List<AbstractSpaceVisualizer<T, ?>> activeViews,
+                        List<SpaceCommand<T>> providedCommands,boolean enableZoom) {
+
         this.space = space;
-        this.currentStrategy = defaultStrategy;
         this.rootPane = new BorderPane();
         this.history = new HistoryManager<>();
+        this.enableZoom = enableZoom;
 
-        List<AbstractSpaceVisualizer<T, ?>> activeViews = List.of(
-                new Space2DVisualizer<>(),
-                new Space3DVisualizer<>()
-        );
+        this.strategies = (providedStrategies != null) ? providedStrategies : new HashMap<>();
+        this.availableCommands = (providedCommands != null) ? providedCommands : new ArrayList<>();
+
+        if (!this.strategies.isEmpty()) {
+            this.currentStrategy = this.strategies.values().iterator().next();
+        }
 
         multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
 
         centerViewPane = new StackPane(activeViews.get(0).getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
-
-        strategies = new HashMap<>();
-        strategies.put("Euclidean", new EuclideanStrategy());
-        strategies.put("Cosine", new CosineStrategy());
-
-        availableCommands = new ArrayList<>();
-        availableCommands.add(new KnnUI<>(space, vocabulary));
-        availableCommands.add(new DistanceUI<>(space, vocabulary));
-        availableCommands.add(new AnalogyUI<>(space, vocabulary));
-        availableCommands.add(new CentroidUI<>(space));
-        availableCommands.add(new SemanticLineUI<>(space, vocabulary));
 
         multiVisualizer.setOnNodeClicked(item -> {
             if (activeCommand != null) activeCommand.onNodeClicked(item);
@@ -57,7 +52,9 @@ public class AppUIManager<T> {
 
         SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
         TextArea txtConsole = new TextArea("System Ready...\n");
-        txtConsole.setEditable(false); txtConsole.setWrapText(true); txtConsole.setPrefRowCount(8);
+        txtConsole.setEditable(false);
+        txtConsole.setWrapText(true);
+        txtConsole.setPrefRowCount(8);
 
         ComboBox<GUIVisualizer<T>> viewSelector = new ComboBox<>();
         viewSelector.getItems().addAll(activeViews);
@@ -67,7 +64,8 @@ public class AppUIManager<T> {
         rootPane.setRight(sideMenu);
         rootPane.setCenter(centerViewPane);
 
-        updatePcaLogic("0", "1", "2", false);
+        int initialDimensions = activeViews.get(0).getDimensions();
+        updatePcaLogic(getSavedPcaValues(initialDimensions));
     }
 
     public BorderPane getRoot() { return rootPane; }
@@ -76,36 +74,36 @@ public class AppUIManager<T> {
     public Map<String, DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return availableCommands; }
     public HistoryManager<T> getHistory() { return history; }
+    public boolean isZoomEnabled() { return enableZoom;}
 
-    public String[] getSavedPcaValues(boolean is3D) {
-        if (is3D) return new String[]{pX3D, pY3D, pZ3D};
-        return new String[]{pX2D, pY2D, pZ3D};
+    public String[] getSavedPcaValues(int dimensions) {
+        return pcaHistory.computeIfAbsent(dimensions, dim -> {
+            String[] defaultValues = new String[dim];
+            for (int i = 0; i < dim; i++) {
+                defaultValues[i] = String.valueOf(i);
+            }
+            return defaultValues;
+        });
     }
 
-    public String updatePcaLogic(String x, String y, String z, boolean is3D) {
-        if (is3D) {
-            pX3D = x; pY3D = y; pZ3D = z;
-        } else {
-            pX2D = x; pY2D = y;
+    public String updatePcaLogic(String[] axes) {
+        pcaHistory.put(axes.length, axes);
+
+        int[] targetAxes = new int[axes.length];
+        for (int i = 0; i < axes.length; i++) {
+            targetAxes[i] = Integer.parseInt(axes[i]);
         }
 
-        String realZ = is3D ? z : String.valueOf(Integer.MIN_VALUE);
-
         try {
-            int px = Integer.parseInt(x);
-            int py = Integer.parseInt(y);
-            int pz = Integer.parseInt(realZ);
-
             multiVisualizer.clearHighlights();
-            String result = new PcaCommand<>(space, px, py, pz).execute(multiVisualizer);
+
+            String result = new PcaCommand<>(space, targetAxes).execute(multiVisualizer);
 
             AppAction<T> lastFunc = history.peekUndo();
             if (lastFunc != null) {
-                String funcRes = lastFunc.execute();
-                result += "\n[Re-applied]: " + funcRes;
+                result += "\n[Re-applied]: " + lastFunc.execute();
             }
             return result;
-
         } catch (Exception e) {
             return "Error: Invalid PCA inputs.";
         }
