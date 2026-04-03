@@ -1,9 +1,6 @@
 package core;
 
 import math.*;
-import actions.*;
-import visuals.*;
-import ui.*;
 
 import java.util.Set;
 

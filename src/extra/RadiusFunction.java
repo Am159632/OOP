@@ -1,6 +1,9 @@
-package math;
+package extra;
 
 import core.SpaceComponent;
+import math.DistanceStrategy;
+import math.SpaceFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 

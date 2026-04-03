@@ -1,12 +1,14 @@
-package ui;
+package extra;
 
 import core.*;
-import math.*;
 import actions.*;
-import visuals.*;
 
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import ui.AbstractSpaceCommand;
+import ui.UIUtils;
+import visuals.SpaceVisualizer;
+
 import java.util.List;
 
 public class RadiusUI<T> extends AbstractSpaceCommand<T> {

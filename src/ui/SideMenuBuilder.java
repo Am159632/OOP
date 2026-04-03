@@ -1,6 +1,5 @@
 package ui;
 
-import actions.HistoryManager;
 import visuals.GUIVisualizer;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;

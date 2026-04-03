@@ -1,10 +1,11 @@
-package visuals;
+package extra;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import visuals.AbstractSpaceVisualizer;
 
 public class Space1DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
 

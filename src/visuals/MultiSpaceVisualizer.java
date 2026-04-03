@@ -1,13 +1,9 @@
 package visuals;
 
 import core.*;
-import math.*;
-import actions.*;
-import ui.*;
 
 import java.util.List;
 import java.util.ArrayList;
-import javafx.scene.Node;
 import java.util.function.Consumer;
 
 public class MultiSpaceVisualizer<T> implements SpaceVisualizer<T> {

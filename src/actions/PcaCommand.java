@@ -1,7 +1,9 @@
 package actions;
 
 import core.*;
-import visuals.*;
+import visuals.AbstractSpaceVisualizer;
+import visuals.SpaceVisualizer;
+
 import java.util.Arrays;
 import java.util.Set;
 

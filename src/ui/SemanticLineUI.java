@@ -1,12 +1,12 @@
 package ui;
 
 import core.*;
-import math.*;
 import actions.*;
-import visuals.*;
 
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import visuals.SpaceVisualizer;
+
 import java.util.List;
 
 public class SemanticLineUI<T> extends AbstractSpaceCommand<T> {

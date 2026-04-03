@@ -1,9 +1,6 @@
 package ui;
 
-import core.*;
 import math.*;
-import actions.*;
-import visuals.*;
 
 import actions.AppAction;
 import visuals.SpaceVisualizer;

@@ -1,13 +1,15 @@
-package ui;
+package extra;
 
 import core.AbstractAnalyzableSpace;
 import actions.AppAction;
-import actions.MarkerAction;
 import visuals.SpaceVisualizer;
 
 import javafx.scene.control.TextField;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
+import ui.AbstractSpaceCommand;
+import ui.UIUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

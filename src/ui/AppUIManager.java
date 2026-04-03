@@ -3,10 +3,13 @@ package ui;
 import core.*;
 import math.*;
 import actions.*;
-import visuals.*;
 
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
+import visuals.AbstractSpaceVisualizer;
+import visuals.GUIVisualizer;
+import visuals.MultiSpaceVisualizer;
+
 import java.util.*;
 
 public class AppUIManager<T> {

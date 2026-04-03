@@ -1,8 +1,10 @@
-package actions;
+package extra;
 
+import actions.AbstractAnalysisAction;
 import core.*;
 import math.*;
-import visuals.*;
+import visuals.SpaceVisualizer;
+
 import java.util.List;
 
 public class RadiusAction<T> extends AbstractAnalysisAction<T> {
@@ -31,7 +33,12 @@ public class RadiusAction<T> extends AbstractAnalysisAction<T> {
             visualizer.drawLine(target, item, "#A9A9A9", 1.5);
         }
 
-        return "Found " + foundItems.size() + " items within radius " + radius + " from '" + target + "'.";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Radius Search for '").append(target).append("' (Max Distance: ").append(radius).append("):\n");
+        sb.append(foundItems.isEmpty() ? "No items found in this radius." : foundItems.toString());
+        sb.append("\n[Strategy: ").append(strategy.getClass().getSimpleName()).append("]");
+
+        return sb.toString();
     }
 
     @Override

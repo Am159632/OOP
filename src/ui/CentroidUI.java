@@ -1,11 +1,11 @@
 package ui;
 
 import core.*;
-import math.*;
 import actions.*;
-import visuals.*;
 
 import javafx.scene.control.TextField;
+import visuals.SpaceVisualizer;
+
 import java.util.Arrays;
 import java.util.List;
 

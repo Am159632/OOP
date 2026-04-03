@@ -2,7 +2,7 @@ package actions;
 
 import core.*;
 import math.*;
-import visuals.*;
+import visuals.SpaceVisualizer;
 
 import java.util.List;
 

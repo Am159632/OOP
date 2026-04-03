@@ -1,13 +1,17 @@
 package core;
 
+import extra.MarkerUI;
+import extra.RadiusUI;
+import extra.Space1DVisualizer;
 import math.*;
-import actions.*;
-import visuals.*;
 import ui.*;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import visuals.AbstractSpaceVisualizer;
+import visuals.Space2DVisualizer;
+import visuals.Space3DVisualizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,5 +1,6 @@
-package actions;
+package extra;
 
+import actions.AppAction;
 import visuals.SpaceVisualizer;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class MarkerAction<T> implements AppAction<T> {
     @Override
     public String execute() {
         visualizer.highlightItems(itemsToMark, colorHex);
-        return "Marked items " + itemsToMark + " with color " + colorHex;
+        return "Highlighted Items (" + colorHex + "):\n" + itemsToMark.toString();
     }
 
     @Override

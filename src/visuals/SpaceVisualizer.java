@@ -1,13 +1,9 @@
 package visuals;
 
 import core.*;
-import math.*;
-import actions.*;
-import ui.*;
 
 import java.util.List;
 import java.util.function.Consumer;
-import javafx.scene.Node;
 
 public interface SpaceVisualizer<T> {
     void drawSpace(List<PointData<T>> points);
