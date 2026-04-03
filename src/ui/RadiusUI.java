@@ -9,32 +9,32 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import java.util.List;
 
-public class KnnUI<T> extends AbstractSpaceCommand<T> {
+public class RadiusUI<T> extends AbstractSpaceCommand<T> {
     private ComboBox<T> comboTarget;
-    private TextField txtK;
+    private TextField txtRadius;
 
-    public KnnUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
+    public RadiusUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
         super(space);
         comboTarget = UIUtils.createSearchableComboBox(vocabulary);
-        txtK = new TextField();
-        txtK.setPromptText("Number of Neighbors (K)");
+        txtRadius = new TextField();
+        txtRadius.setPromptText("Max Distance");
 
         uiContainer.getChildren().addAll(
                 UIUtils.createClearableComboRow(comboTarget, "Target Item"),
-                txtK
+                txtRadius
         );
     }
 
     @Override
-    public String getName() { return "Find Neighbors (KNN)"; }
+    public String getName() { return "Radius Search"; }
 
     @Override
     public AppAction<T> generateAction(SpaceVisualizer<T> visualizer) {
         T target = getComboValue(comboTarget);
         if (target == null) throw new IllegalArgumentException("Empty Target");
 
-        int k = Integer.parseInt(txtK.getText());
-        return new KnnAction<>(space, visualizer, strategy, target, k);
+        double radius = Double.parseDouble(txtRadius.getText());
+        return new RadiusAction<>(space, visualizer, strategy, target, radius);
     }
 
     @Override

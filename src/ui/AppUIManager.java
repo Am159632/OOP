@@ -60,6 +60,7 @@ public class AppUIManager<T> {
         viewSelector.getItems().addAll(activeViews);
         viewSelector.setValue(activeViews.get(0));
 
+
         VBox sideMenu = builder.build(txtConsole, viewSelector);
         rootPane.setRight(sideMenu);
         rootPane.setCenter(centerViewPane);

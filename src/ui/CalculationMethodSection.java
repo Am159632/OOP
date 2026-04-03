@@ -3,26 +3,22 @@ package ui;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-public class CalculationMethodSection<T> implements MenuSection {
+public class CalculationMethodSection<T> extends AbstractMenuSection {
     private AppUIManager<T> uiManager;
 
     public CalculationMethodSection(AppUIManager<T> uiManager) {
+        super("Calculation Method");
         this.uiManager = uiManager;
     }
 
     @Override
-    public VBox build() {
-        VBox box = new VBox(10);
-        Label lblDist = new Label("Calculation Method");
-        lblDist.getStyleClass().add("section-title");
-
+    protected void buildContent(VBox container) {
         ComboBox<String> distanceBox = new ComboBox<>();
         distanceBox.getItems().addAll(uiManager.getStrategies().keySet());
         distanceBox.setValue("Euclidean");
         distanceBox.setMaxWidth(Double.MAX_VALUE);
         distanceBox.setOnAction(e -> uiManager.setStrategy(uiManager.getStrategies().get(distanceBox.getValue())));
 
-        box.getChildren().addAll(lblDist, distanceBox);
-        return box;
+        container.getChildren().add(distanceBox);
     }
 }

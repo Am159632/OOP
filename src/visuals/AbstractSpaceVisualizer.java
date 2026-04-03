@@ -42,8 +42,9 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
         clearSpace();
         if (points == null || points.isEmpty()) return;
 
-        double[] mins = calculateMins(points);
-        double[] maxs = calculateMaxs(points);
+        double[][] bounds = calculateBounds(points);
+        double[] mins = bounds[0];
+        double[] maxs = bounds[1];
 
         for (PointData<T> p : points) {
             double[] coords = p.getCoordinates();
@@ -122,28 +123,24 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
         clearScene();
     }
 
-    private double[] calculateMins(List<PointData<T>> points) {
+
+    private double[][] calculateBounds(List<PointData<T>> points) {
         int dims = points.get(0).getCoordinates().length;
         double[] mins = new double[dims];
-        for (int i = 0; i < dims; i++) mins[i] = Double.MAX_VALUE;
+        double[] maxs = new double[dims];
+
+        for (int i = 0; i < dims; i++) {
+            mins[i] = Double.MAX_VALUE;
+            maxs[i] = -Double.MAX_VALUE;
+        }
+
         for (PointData<T> p : points) {
             for (int i = 0; i < Math.min(dims, p.getCoordinates().length); i++) {
                 mins[i] = Math.min(mins[i], p.getCoordinates()[i]);
-            }
-        }
-        return mins;
-    }
-
-    private double[] calculateMaxs(List<PointData<T>> points) {
-        int dims = points.get(0).getCoordinates().length;
-        double[] maxs = new double[dims];
-        for (int i = 0; i < dims; i++) maxs[i] = -Double.MAX_VALUE;
-        for (PointData<T> p : points) {
-            for (int i = 0; i < Math.min(dims, p.getCoordinates().length); i++) {
                 maxs[i] = Math.max(maxs[i], p.getCoordinates()[i]);
             }
         }
-        return maxs;
+        return new double[][]{mins, maxs};
     }
 
     @Override

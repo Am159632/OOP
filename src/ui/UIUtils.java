@@ -75,4 +75,24 @@ public class UIUtils {
 
         return comboBox;
     }
+
+    public static <T> javafx.scene.layout.HBox createClearableComboRow(ComboBox<T> combo, String prompt) {
+        combo.setPromptText(prompt);
+        javafx.scene.control.Button btnClear = new javafx.scene.control.Button("X");
+        btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        btnClear.setOnAction(e -> combo.getEditor().clear());
+        javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(5, combo, btnClear);
+        javafx.scene.layout.HBox.setHgrow(combo, javafx.scene.layout.Priority.ALWAYS);
+        return row;
+    }
+
+    public static javafx.scene.layout.HBox createClearableTextRow(TextField txt, String prompt) {
+        txt.setPromptText(prompt);
+        javafx.scene.control.Button btnClear = new javafx.scene.control.Button("X");
+        btnClear.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        btnClear.setOnAction(e -> txt.clear());
+        javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(5, txt, btnClear);
+        javafx.scene.layout.HBox.setHgrow(txt, javafx.scene.layout.Priority.ALWAYS);
+        return row;
+    }
 }

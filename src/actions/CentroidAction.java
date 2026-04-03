@@ -6,18 +6,12 @@ import visuals.*;
 
 import java.util.List;
 
-public class CentroidAction<T> implements AppAction<T> {
-    private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
-    private DistanceStrategy strategy;
+public class CentroidAction<T> extends AbstractAnalysisAction<T> {
     private List<T> group;
-    private boolean isCalculated = false;
     private T result;
 
     public CentroidAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, List<T> group) {
-        this.space = space;
-        this.visualizer = visualizer;
-        this.strategy = strategy;
+        super(space, visualizer, strategy);
         this.group = group;
     }
 
@@ -26,7 +20,7 @@ public class CentroidAction<T> implements AppAction<T> {
         if (!isCalculated) {
             CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
             result = space.executeFunction(centroidFunc, strategy);
-            isCalculated=true;
+            isCalculated = true;
         }
 
         if (result != null) {
@@ -43,17 +37,12 @@ public class CentroidAction<T> implements AppAction<T> {
     }
 
     @Override
-    public void undo() {
-        visualizer.clearHighlights();
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
 
         CentroidAction<?> that = (CentroidAction<?>) obj;
 
-        return group.containsAll(that.group) && group.size()==that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
+        return group.containsAll(that.group) && group.size() == that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
     }
 }

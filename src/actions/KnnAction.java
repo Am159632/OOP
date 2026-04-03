@@ -7,23 +7,18 @@ import visuals.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class KnnAction<T> implements AppAction<T> {
-    private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
-    private DistanceStrategy strategy;
+public class KnnAction<T> extends AbstractAnalysisAction<T> {
     private T target;
     private int k;
-    private boolean isCalculated = false;
     private List<ItemDistance<T>> neighbors;
     private String output;
 
     public KnnAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, T target, int k) {
-        this.space = space;
-        this.visualizer = visualizer;
-        this.strategy = strategy;
+        super(space, visualizer, strategy);
         this.target = target;
         this.k = k;
     }
+
     @Override
     public String execute() {
         if (!isCalculated) {
@@ -56,11 +51,6 @@ public class KnnAction<T> implements AppAction<T> {
         }
 
         return output;
-    };
-
-    @Override
-    public void undo() {
-        visualizer.clearHighlights();
     }
 
     @Override

@@ -3,22 +3,15 @@ package actions;
 import core.*;
 import math.*;
 import visuals.*;
-import ui.*;
 
 import java.util.List;
 
-public class AnalogyAction<T> implements AppAction<T> {
-    private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
-    private DistanceStrategy strategy;
+public class AnalogyAction<T> extends AbstractAnalysisAction<T> {
     private T w1, w2, w3;
-    private boolean isCalculated = false;
     private T result;
 
     public AnalogyAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, T w1, T w2, T w3) {
-        this.space = space;
-        this.visualizer = visualizer;
-        this.strategy = strategy;
+        super(space, visualizer, strategy);
         this.w1 = w1;
         this.w2 = w2;
         this.w3 = w3;
@@ -29,7 +22,7 @@ public class AnalogyAction<T> implements AppAction<T> {
         if (!isCalculated) {
             AnalogyFunction<T> analogyFunc = new AnalogyFunction<>("FULL", w1, w2, w3);
             result = space.executeFunction(analogyFunc, strategy);
-            isCalculated=true;
+            isCalculated = true;
         }
 
         if (result != null) {
@@ -43,11 +36,6 @@ public class AnalogyAction<T> implements AppAction<T> {
             return w1 + " - " + w2 + " + " + w3 + " = " + result + " (Strategy: " + strategy.toString() + ")";
         }
         return "No analogy found.";
-    }
-
-    @Override
-    public void undo() {
-        visualizer.clearHighlights();
     }
 
     @Override

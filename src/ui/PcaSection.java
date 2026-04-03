@@ -6,15 +6,15 @@ import javafx.scene.layout.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PcaSection<T> implements MenuSection {
+public class PcaSection<T> extends AbstractMenuSection {
     private AppUIManager<T> uiManager;
     private ComboBox<GUIVisualizer<T>> viewSelector;
     private TextArea txtConsole;
-
     private HBox pcaInputsBox;
     private List<TextField> currentFields;
 
     public PcaSection(AppUIManager<T> uiManager, ComboBox<GUIVisualizer<T>> viewSelector, TextArea txtConsole) {
+        super("Load PCA Space");
         this.uiManager = uiManager;
         this.viewSelector = viewSelector;
         this.txtConsole = txtConsole;
@@ -23,11 +23,7 @@ public class PcaSection<T> implements MenuSection {
     }
 
     @Override
-    public VBox build() {
-        VBox box = new VBox(10);
-        Label lblPca = new Label("Load PCA Space");
-        lblPca.getStyleClass().add("section-title");
-
+    protected void buildContent(VBox container) {
         Button btnPca = new Button("Execute PCA");
         btnPca.setMaxWidth(Double.MAX_VALUE);
 
@@ -41,12 +37,12 @@ public class PcaSection<T> implements MenuSection {
 
         btnPca.setOnAction(e -> executePca());
 
-        box.getChildren().addAll(lblPca, pcaInputsBox, btnPca);
+        container.getChildren().addAll(pcaInputsBox, btnPca);
+
         GUIVisualizer<T> initialView = viewSelector.getValue();
         if (initialView != null) {
             rebuildInputFields(initialView.getDimensions());
         }
-        return box;
     }
 
     private void rebuildInputFields(int dimensions) {

@@ -46,7 +46,7 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         double y = HEIGHT - (PADDING + normY * (HEIGHT - 2 * PADDING));
         Circle circle = new Circle(x, y, DEFAULT_RADIUS);
         circle.setFill(Color.web(getDefaultColor(), DEFAULT_OPACITY));
-        return circle; // נקי ופשוט!
+        return circle;
     }
 
     @Override
@@ -94,7 +94,6 @@ public class Space2DVisualizer<T> extends AbstractSpaceVisualizer<T, Circle> {
         if (sourceNode == null || targetNode == null) return;
 
         Line line = new Line(sourceNode.getCenterX(), sourceNode.getCenterY(), targetNode.getCenterX(), targetNode.getCenterY());
-        line.setStroke(Color.web(colorHex));
         line.setStroke(Color.web(colorHex));
         line.setStrokeWidth(thickness);
         line.setOpacity(0.5);

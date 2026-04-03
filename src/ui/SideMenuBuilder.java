@@ -33,8 +33,9 @@ public class SideMenuBuilder<T> {
         if (!uiManager.getStrategies().isEmpty() && !uiManager.getAvailableCommands().isEmpty()) {
             sections.add(new AnalysisSection<>(uiManager, uiManager.getHistory(), console));
             sections.add(new CalculationMethodSection<>(uiManager));
-            sections.add(new HistorySection<>(uiManager, uiManager.getHistory(), console));
         }
+
+        sections.add(new HistorySection<>(uiManager, uiManager.getHistory(), console));
 
         for (MenuSection section : sections) {
             sideMenu.getChildren().addAll(section.build(), new Separator());

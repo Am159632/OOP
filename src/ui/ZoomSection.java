@@ -4,19 +4,16 @@ import visuals.GUIVisualizer;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-public class ZoomSection<T> implements MenuSection {
+public class ZoomSection<T> extends AbstractMenuSection {
     private ComboBox<GUIVisualizer<T>> viewSelector;
 
     public ZoomSection(ComboBox<GUIVisualizer<T>> viewSelector) {
+        super("Camera Zoom Level");
         this.viewSelector = viewSelector;
     }
 
     @Override
-    public VBox build() {
-        VBox box = new VBox(10);
-        Label lblZoom = new Label("Camera Zoom Level");
-        lblZoom.getStyleClass().add("section-title");
-
+    protected void buildContent(VBox container) {
         Slider zoomSlider = new Slider(1, 100, 50);
         zoomSlider.setShowTickMarks(true);
         zoomSlider.setShowTickLabels(true);
@@ -40,7 +37,6 @@ public class ZoomSection<T> implements MenuSection {
             viewSelector.getValue().setOnZoomChanged(val -> zoomSlider.setValue(val));
         }
 
-        box.getChildren().addAll(lblZoom, zoomSlider);
-        return box;
+        container.getChildren().add(zoomSlider);
     }
 }

@@ -6,19 +6,13 @@ import visuals.*;
 
 import java.util.List;
 
-public class DistanceAction<T> implements AppAction<T> {
-    private AbstractAnalyzableSpace<T> space;
-    private SpaceVisualizer<T> visualizer;
-    private DistanceStrategy strategy;
+public class DistanceAction<T> extends AbstractAnalysisAction<T> {
     private T w1;
     private T w2;
-    private boolean isCalculated = false;
     private double dist;
 
     public DistanceAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, T w1, T w2) {
-        this.space = space;
-        this.visualizer = visualizer;
-        this.strategy = strategy;
+        super(space, visualizer, strategy);
         this.w1 = w1;
         this.w2 = w2;
     }
@@ -28,18 +22,13 @@ public class DistanceAction<T> implements AppAction<T> {
         if (!isCalculated) {
             DistanceFunction<T> func = new DistanceFunction<>("FULL", w1, w2);
             dist = space.executeFunction(func, strategy);
-            isCalculated=true;
+            isCalculated = true;
         }
 
         visualizer.highlightItems(List.of(w1, w2), "#007BFF");
         visualizer.drawLine(w1, w2, "#FD7E14", 3.0);
 
         return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist) + " (Strategy: " + strategy.toString() + ")";
-    }
-
-    @Override
-    public void undo() {
-        visualizer.clearHighlights();
     }
 
     @Override

@@ -5,24 +5,21 @@ import actions.HistoryManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-public class AnalysisSection<T> implements MenuSection {
+public class AnalysisSection<T> extends AbstractMenuSection {
     private AppUIManager<T> uiManager;
     private HistoryManager<T> history;
     private TextArea txtConsole;
     private ComboBox<String> actionBox;
 
     public AnalysisSection(AppUIManager<T> uiManager, HistoryManager<T> history, TextArea txtConsole) {
+        super("Analysis Functions");
         this.uiManager = uiManager;
         this.history = history;
         this.txtConsole = txtConsole;
     }
 
     @Override
-    public VBox build() {
-        VBox box = new VBox(10);
-        Label lblFunc = new Label("Analysis Functions");
-        lblFunc.getStyleClass().add("section-title");
-
+    protected void buildContent(VBox container) {
         actionBox = new ComboBox<>();
         uiManager.getAvailableCommands().forEach(cmd -> actionBox.getItems().add(cmd.getName()));
         if (!uiManager.getAvailableCommands().isEmpty()) {
@@ -50,7 +47,6 @@ public class AnalysisSection<T> implements MenuSection {
             }
         });
 
-        box.getChildren().addAll(lblFunc, actionBox, dynamicInputs, btnFunc);
-        return box;
+        container.getChildren().addAll(actionBox, dynamicInputs, btnFunc);
     }
 }

@@ -69,7 +69,8 @@ public class MainApp extends Application {
                 new DistanceUI<>(space, vocabulary),
                 new AnalogyUI<>(space, vocabulary),
                 new CentroidUI<>(space),
-                new SemanticLineUI<>(space, vocabulary)
+                new SemanticLineUI<>(space, vocabulary),
+                new RadiusUI<>(space,vocabulary),new MarkerUI<>(space,vocabulary)
         );
 
         Scanner scanner = new Scanner(System.in);
