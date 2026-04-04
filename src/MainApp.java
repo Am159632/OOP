@@ -1,23 +1,14 @@
-import core.OurSpace;
-import extra.MarkerUI;
-import extra.RadiusUI;
-import extra.Space1DVisualizer;
+import core.*;
+import extra.*;
 import math.*;
 import ui.*;
+import visuals.*;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import visuals.AbstractSpaceVisualizer;
-import visuals.Space2DVisualizer;
-import visuals.Space3DVisualizer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Scanner;
+import java.util.*;
 
 public class MainApp extends Application {
 
