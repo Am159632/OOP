@@ -54,7 +54,7 @@ public class PcaSection<T> extends AbstractMenuSection {
 
         for (int i = 0; i < dimensions; i++) {
             TextField tf = new TextField(savedVals[i]);
-            tf.setPromptText(axisLabels[i]);
+            tf.setPromptText(i < axisLabels.length ? axisLabels[i] : "Axis " + (i + 1));
             HBox.setHgrow(tf, Priority.ALWAYS);
 
             currentFields.add(tf);

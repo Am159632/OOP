@@ -9,9 +9,8 @@ import java.util.Set;
 
 public class PcaCommand<T> {
     private AbstractAnalyzableSpace<T> space;
-    private int[] targetAxes; // הכל הופך למערך דינמי אחד!
+    private int[] targetAxes;
 
-    // הבנאי עכשיו מקבל מערך של צירים (varargs)
     public PcaCommand(AbstractAnalyzableSpace<T> space, int... targetAxes) {
         this.space = space;
         this.targetAxes = targetAxes;
@@ -19,7 +18,6 @@ public class PcaCommand<T> {
 
     public String execute(SpaceVisualizer<T> visualizer) {
         try {
-            // תיקון Decoupling: מנקים את כל החלל כולל המילונים, ולא רק את המסך הגרפי
             if (visualizer instanceof AbstractSpaceVisualizer) {
                 ((AbstractSpaceVisualizer<?, ?>) visualizer).clearSpace();
             } else {
@@ -29,7 +27,6 @@ public class PcaCommand<T> {
             Set<T> items = space.getItems("PCA");
             if (items == null || items.isEmpty()) return "No items found.";
 
-            // מציאת גודל הוקטור (המימד האמיתי של הנתונים)
             int dim = 0;
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
@@ -40,12 +37,10 @@ public class PcaCommand<T> {
             }
             if (dim == 0) return "Error: Vectors are empty or invalid.";
 
-            // תיקון מתמטי: מסדרים רק את הצירים שבאמת קיבלנו! אין יותר Integer.MIN_VALUE
             for (int i = 0; i < targetAxes.length; i++) {
                 targetAxes[i] = (targetAxes[i] % dim + dim) % dim;
             }
 
-            // מערכים דינמיים לחישוב מינימום ומקסימום - DRY במיטבו
             double[] mins = new double[targetAxes.length];
             double[] maxs = new double[targetAxes.length];
             Arrays.fill(mins, Double.MAX_VALUE);
@@ -61,11 +56,9 @@ public class PcaCommand<T> {
                 }
             }
 
-            // נרמול וציור
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
                 if (vector != null && vector.length >= dim) {
-                    // אם אין ציר (למשל במימד 1), הוא אוטומטית מקבל 0.5 (ממורכז) בלי חישובי זבל
                     double normX = targetAxes.length > 0 ? normalize(vector[targetAxes[0]], mins[0], maxs[0]) : 0.5;
                     double normY = targetAxes.length > 1 ? normalize(vector[targetAxes[1]], mins[1], maxs[1]) : 0.5;
                     double normZ = targetAxes.length > 2 ? normalize(vector[targetAxes[2]], mins[2], maxs[2]) : 0.5;

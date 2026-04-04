@@ -1,5 +1,4 @@
-package core;
-
+import core.OurSpace;
 import extra.MarkerUI;
 import extra.RadiusUI;
 import extra.Space1DVisualizer;
@@ -58,17 +57,17 @@ public class MainApp extends Application {
         Set<String> items = space.getItems("FULL");
         if (items != null) vocabulary.addAll(items);
 
-        Map<String, DistanceStrategy> defaultStrategies = new HashMap<>();
-        defaultStrategies.put("Euclidean", new EuclideanStrategy());
-        defaultStrategies.put("Cosine", new CosineStrategy());
+        finalStrategies = new HashMap<>();
+        finalStrategies.put("Euclidean", new EuclideanStrategy());
+        finalStrategies.put("Cosine", new CosineStrategy());
 
-        List<AbstractSpaceVisualizer<String, ?>> defaultViews = List.of(
+        finalViews = List.of(
                 new Space1DVisualizer<>(),
                 new Space2DVisualizer<>(),
                 new Space3DVisualizer<>()
         );
 
-        List<SpaceCommand<String>> defaultCommands = List.of(
+        finalCommands = List.of(
                 new KnnUI<>(space, vocabulary),
                 new DistanceUI<>(space, vocabulary),
                 new AnalogyUI<>(space, vocabulary),
@@ -76,54 +75,6 @@ public class MainApp extends Application {
                 new SemanticLineUI<>(space, vocabulary),
                 new RadiusUI<>(space,vocabulary),new MarkerUI<>(space,vocabulary)
         );
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("\n=========================================");
-        System.out.println("   Welcome to Word Embedding Builder!    ");
-        System.out.println("=========================================\n");
-
-        boolean useDefault = getUserConfirmation(scanner, "Run default setup with all features?");
-
-        if (!useDefault) {
-            System.out.println("\n--- 1. Select Spaces (Views) ---");
-            for (AbstractSpaceVisualizer<String, ?> view : defaultViews) {
-                if (getUserConfirmation(scanner, "Include " + view.toString() + "?")) {
-                    finalViews.add(view);
-                }
-            }
-
-            System.out.println("\n--- 2. Select Distance Strategies ---");
-            for (Map.Entry<String, DistanceStrategy> entry : defaultStrategies.entrySet()) {
-                if (getUserConfirmation(scanner, "Include " + entry.getKey() + " Strategy?")) {
-                    finalStrategies.put(entry.getKey(), entry.getValue());
-                }
-            }
-
-            System.out.println("\n--- 3. Select Commands & Functions ---");
-            if (finalStrategies.isEmpty()) {
-                System.out.println("  -> Skipping: No distance strategies selected. Commands require at least one strategy.");
-            } else {
-                for (SpaceCommand<String> cmd : defaultCommands) {
-                    if (getUserConfirmation(scanner, "Include " + cmd.getName() + " function?")) {
-                        finalCommands.add(cmd);
-                    }
-                }
-            }
-
-            System.out.println("\n--- 4. General Settings ---");
-            finalZoom = getUserConfirmation(scanner, "Enable Zoom feature?");
-
-        } else {
-            finalStrategies.putAll(defaultStrategies);
-            finalViews.addAll(defaultViews);
-            finalCommands.addAll(defaultCommands);
-            finalZoom = true;
-        }
-
-        if (finalViews.isEmpty()) {
-            System.out.println("\nWarning: No spaces selected! Defaulting to 3D Space.");
-            finalViews.add(new Space3DVisualizer<>());
-        }
 
         System.out.println("\nStarting GUI...");
         launch(args);
