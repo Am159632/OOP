@@ -27,21 +27,6 @@ public class MainApp extends Application {
     private static List<SpaceCommand<String>> finalCommands = new ArrayList<>();
     private static boolean finalZoom = true;
 
-    private static boolean getUserConfirmation(Scanner scanner, String prompt) {
-        while (true) {
-            System.out.print(prompt + " (Y/n): ");
-            String input = scanner.nextLine().trim().toLowerCase();
-
-            if (input.equals("y") || input.equals("yes") || input.isEmpty()) {
-                return true;
-            } else if (input.equals("n") || input.equals("no")) {
-                return false;
-            } else {
-                System.out.println("  -> Invalid input! Please enter 'y' for Yes, 'n' for No, or just press Enter.");
-            }
-        }
-    }
-
     public static void main(String[] args) {
         System.out.println("Loading data... Please wait.");
         try {
@@ -62,7 +47,6 @@ public class MainApp extends Application {
         finalStrategies.put("Cosine", new CosineStrategy());
 
         finalViews = List.of(
-                new Space1DVisualizer<>(),
                 new Space2DVisualizer<>(),
                 new Space3DVisualizer<>()
         );
