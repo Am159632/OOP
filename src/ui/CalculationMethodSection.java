@@ -1,5 +1,6 @@
 package ui;
 
+import math.DistanceStrategy;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -13,11 +14,16 @@ public class CalculationMethodSection<T> extends AbstractMenuSection {
 
     @Override
     protected void buildContent(VBox container) {
-        ComboBox<String> distanceBox = new ComboBox<>();
-        distanceBox.getItems().addAll(uiManager.getStrategies().keySet());
-        distanceBox.setValue("Euclidean");
+        ComboBox<DistanceStrategy> distanceBox = new ComboBox<>();
+        distanceBox.getItems().addAll(uiManager.getStrategies());
+
+        if (!distanceBox.getItems().isEmpty()) {
+            distanceBox.setValue(distanceBox.getItems().get(0));
+            uiManager.setStrategy(distanceBox.getValue());
+        }
+
         distanceBox.setMaxWidth(Double.MAX_VALUE);
-        distanceBox.setOnAction(e -> uiManager.setStrategy(uiManager.getStrategies().get(distanceBox.getValue())));
+        distanceBox.setOnAction(e -> uiManager.setStrategy(distanceBox.getValue()));
 
         container.getChildren().add(distanceBox);
     }

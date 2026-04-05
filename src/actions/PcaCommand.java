@@ -1,10 +1,11 @@
 package actions;
 
 import core.*;
-import visuals.AbstractSpaceVisualizer;
 import visuals.SpaceVisualizer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class PcaCommand<T> {
@@ -18,14 +19,8 @@ public class PcaCommand<T> {
 
     public String execute(SpaceVisualizer<T> visualizer) {
         try {
-            if (visualizer instanceof AbstractSpaceVisualizer) {
-                ((AbstractSpaceVisualizer<?, ?>) visualizer).clearSpace();
-            } else {
-                visualizer.clearScene();
-            }
-
             Set<T> items = space.getItems("PCA");
-            if (items == null || items.isEmpty()) return "No items found.";
+            if (items == null || items.isEmpty()) return "No items found in PCA space.";
 
             int dim = 0;
             for (T item : items) {
@@ -41,31 +36,19 @@ public class PcaCommand<T> {
                 targetAxes[i] = (targetAxes[i] % dim + dim) % dim;
             }
 
-            double[] mins = new double[targetAxes.length];
-            double[] maxs = new double[targetAxes.length];
-            Arrays.fill(mins, Double.MAX_VALUE);
-            Arrays.fill(maxs, -Double.MAX_VALUE);
-
+            List<PointData<T>> pointsToDraw = new ArrayList<>();
             for (T item : items) {
                 double[] vector = space.getVector("PCA", item);
                 if (vector != null && vector.length >= dim) {
+                    double[] coords = new double[targetAxes.length];
                     for (int i = 0; i < targetAxes.length; i++) {
-                        mins[i] = Math.min(mins[i], vector[targetAxes[i]]);
-                        maxs[i] = Math.max(maxs[i], vector[targetAxes[i]]);
+                        coords[i] = vector[targetAxes[i]];
                     }
+                    pointsToDraw.add(new PointData<>(item, coords));
                 }
             }
 
-            for (T item : items) {
-                double[] vector = space.getVector("PCA", item);
-                if (vector != null && vector.length >= dim) {
-                    double normX = targetAxes.length > 0 ? normalize(vector[targetAxes[0]], mins[0], maxs[0]) : 0.5;
-                    double normY = targetAxes.length > 1 ? normalize(vector[targetAxes[1]], mins[1], maxs[1]) : 0.5;
-                    double normZ = targetAxes.length > 2 ? normalize(vector[targetAxes[2]], mins[2], maxs[2]) : 0.5;
-
-                    visualizer.drawNode(item, normX, normY, normZ);
-                }
-            }
+            visualizer.drawSpace(pointsToDraw);
 
             return "PCA Space loaded with axes: " + Arrays.toString(targetAxes);
 
@@ -73,9 +56,5 @@ public class PcaCommand<T> {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
-    }
-
-    private double normalize(double val, double min, double max) {
-        return (max == min) ? 0.5 : (val - min) / (max - min);
     }
 }

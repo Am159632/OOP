@@ -2,18 +2,19 @@ package ui;
 
 import core.*;
 import actions.*;
-
 import javafx.scene.control.TextField;
 import visuals.SpaceVisualizer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CentroidUI<T> extends AbstractSpaceCommand<T> {
     private TextField txtGroup;
 
-    public CentroidUI(AbstractAnalyzableSpace<T> space) {
-        super(space);
+    public CentroidUI(AbstractAnalyzableSpace<T> space, Function<String, T> parser) {
+        super(space, parser);
         txtGroup = new TextField();
         uiContainer.getChildren().add(UIUtils.createClearableTextRow(txtGroup, "Items separated by commas"));
     }
@@ -21,12 +22,15 @@ public class CentroidUI<T> extends AbstractSpaceCommand<T> {
     @Override
     public String getName() { return "Centroid (Average)"; }
 
-    @SuppressWarnings("unchecked")
     @Override
     public AppAction<T> generateAction(SpaceVisualizer<T> visualizer) {
         String input = txtGroup.getText();
         if (input == null || input.isEmpty()) throw new IllegalArgumentException("Empty Input");
-        List<T> group = (List<T>) Arrays.asList(input.split("\\s*,\\s*"));
+
+        List<T> group = Arrays.stream(input.split("\\s*,\\s*"))
+                .map(parser)
+                .collect(Collectors.toList());
+
         return new CentroidAction<>(space, visualizer, strategy, group);
     }
 

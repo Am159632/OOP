@@ -8,13 +8,14 @@ import javafx.scene.control.TextField;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class KnnUI<T> extends AbstractSpaceCommand<T> {
     private ComboBox<T> comboTarget;
     private TextField txtK;
 
-    public KnnUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
-        super(space);
+    public KnnUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary, Function<String, T> parser) {
+        super(space, parser);
         comboTarget = UIUtils.createSearchableComboBox(vocabulary);
         txtK = new TextField();
         txtK.setPromptText("Number of Neighbors (K)");

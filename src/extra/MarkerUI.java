@@ -13,14 +13,15 @@ import ui.UIUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class MarkerUI<T> extends AbstractSpaceCommand<T> {
     private TextField txtTargets;
     private ColorPicker colorPicker;
     private List<T> vocabulary;
 
-    public MarkerUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
-        super(space);
+    public MarkerUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary, Function<String, T> parser) {
+        super(space, parser);
         this.vocabulary = vocabulary;
 
         txtTargets = new TextField();

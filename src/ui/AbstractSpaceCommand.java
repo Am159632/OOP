@@ -7,15 +7,18 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class AbstractSpaceCommand<T> implements SpaceCommand<T> {
     protected AbstractAnalyzableSpace<T> space;
     protected DistanceStrategy strategy;
     protected VBox uiContainer;
+    protected Function<String, T> parser;
 
-    public AbstractSpaceCommand(AbstractAnalyzableSpace<T> space) {
+    public AbstractSpaceCommand(AbstractAnalyzableSpace<T> space,Function<String, T> parser) {
         this.space = space;
         this.uiContainer = new VBox(10);
+        this.parser = parser;
     }
 
     @Override
@@ -31,7 +34,7 @@ public abstract class AbstractSpaceCommand<T> implements SpaceCommand<T> {
     protected T getComboValue(ComboBox<T> combo) {
         String text = combo.getEditor().getText();
         if (text != null && !text.isEmpty()) {
-            return (T) text;
+            return parser.apply(text);
         }
         return combo.getValue();
     }

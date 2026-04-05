@@ -18,7 +18,7 @@ public class AppUIManager<T> {
     private MultiSpaceVisualizer<T> multiVisualizer;
     private StackPane centerViewPane;
 
-    private Map<String, DistanceStrategy> strategies;
+    private List<DistanceStrategy> strategies;
     private DistanceStrategy currentStrategy;
     private List<SpaceCommand<T>> availableCommands;
     private SpaceCommand<T> activeCommand;
@@ -28,20 +28,20 @@ public class AppUIManager<T> {
     private Map<Integer, String[]> pcaHistory = new HashMap<>();
 
     public AppUIManager(AbstractAnalyzableSpace<T> space,
-                        Map<String, DistanceStrategy> providedStrategies,
+                        List<DistanceStrategy> providedStrategies,
                         List<AbstractSpaceVisualizer<T, ?>> activeViews,
-                        List<SpaceCommand<T>> providedCommands,boolean enableZoom) {
+                        List<SpaceCommand<T>> providedCommands, boolean enableZoom) {
 
         this.space = space;
         this.rootPane = new BorderPane();
         this.history = new HistoryManager<>();
         this.enableZoom = enableZoom;
 
-        this.strategies = (providedStrategies != null) ? providedStrategies : new HashMap<>();
+        this.strategies = (providedStrategies != null) ? providedStrategies : new ArrayList<>();
         this.availableCommands = (providedCommands != null) ? providedCommands : new ArrayList<>();
 
         if (!this.strategies.isEmpty()) {
-            this.currentStrategy = this.strategies.values().iterator().next();
+            this.currentStrategy = this.strategies.get(0);
         }
 
         multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
@@ -63,7 +63,6 @@ public class AppUIManager<T> {
         viewSelector.getItems().addAll(activeViews);
         viewSelector.setValue(activeViews.get(0));
 
-
         VBox sideMenu = builder.build(txtConsole, viewSelector);
         rootPane.setRight(sideMenu);
         rootPane.setCenter(centerViewPane);
@@ -75,7 +74,7 @@ public class AppUIManager<T> {
     public BorderPane getRoot() { return rootPane; }
     public StackPane getCenterViewPane() { return centerViewPane; }
     public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
-    public Map<String, DistanceStrategy> getStrategies() { return strategies; }
+    public List<DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return availableCommands; }
     public HistoryManager<T> getHistory() { return history; }
     public boolean isZoomEnabled() { return enableZoom;}

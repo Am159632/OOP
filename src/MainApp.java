@@ -9,56 +9,49 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class MainApp extends Application {
 
-    private static OurSpace space;
-    private static Map<String, DistanceStrategy> finalStrategies = new HashMap<>();
-    private static List<AbstractSpaceVisualizer<String, ?>> finalViews = new ArrayList<>();
-    private static List<SpaceCommand<String>> finalCommands = new ArrayList<>();
-    private static boolean finalZoom = true;
-
     public static void main(String[] args) {
-        System.out.println("Loading data... Please wait.");
-        try {
-            space = new OurSpace();
-            space.loadFiles("C:/Users/asafm/IdeaProjects/OOP/full_vectors.json", "C:/Users/asafm/IdeaProjects/OOP/pca_vectors.json");
-        } catch (Exception e) {
-            System.out.println("Error loading files! Please check the paths.");
-            e.printStackTrace();
-            return;
-        }
-
-        List<String> vocabulary = new ArrayList<>();
-        Set<String> items = space.getItems("FULL");
-        if (items != null) vocabulary.addAll(items);
-
-        finalStrategies = new HashMap<>();
-        finalStrategies.put("Euclidean", new EuclideanStrategy());
-        finalStrategies.put("Cosine", new CosineStrategy());
-
-        finalViews = List.of(
-                new Space2DVisualizer<>(),
-                new Space3DVisualizer<>()
-        );
-
-        finalCommands = List.of(
-                new KnnUI<>(space, vocabulary),
-                new DistanceUI<>(space, vocabulary),
-                new AnalogyUI<>(space, vocabulary),
-                new CentroidUI<>(space),
-                new SemanticLineUI<>(space, vocabulary),
-                new RadiusUI<>(space,vocabulary),new MarkerUI<>(space,vocabulary)
-        );
-
-        System.out.println("\nStarting GUI...");
+        System.out.println("Starting GUI... Please wait.");
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            AppUIManager<String> uiManager = new AppUIManager<>(space, finalStrategies, finalViews, finalCommands, finalZoom);
+            OurSpace space = new OurSpace();
+            space.loadFiles("C:/Users/asafm/IdeaProjects/OOP/full_vectors.json", "C:/Users/asafm/IdeaProjects/OOP/pca_vectors.json");
+
+            List<String> vocabulary = new ArrayList<>();
+            Set<String> items = space.getItems("FULL");
+            if (items != null) vocabulary.addAll(items);
+
+            List<DistanceStrategy> strategies = List.of(
+                    new EuclideanStrategy(),
+                    new CosineStrategy(),
+                    new ManhattanStrategy()
+            );
+
+            List<AbstractSpaceVisualizer<String, ?>> views = List.of(
+                    new Space1DVisualizer<>(),
+                    new Space2DVisualizer<>(),
+                    new Space3DVisualizer<>()
+            );
+
+            Function<String, String> parser = id -> id;
+            List<SpaceCommand<String>> commands = List.of(
+                    new KnnUI<>(space, vocabulary, parser),
+                    new DistanceUI<>(space, vocabulary, parser),
+                    new AnalogyUI<>(space, vocabulary, parser),
+                    new CentroidUI<>(space, parser),
+                    new SemanticLineUI<>(space, vocabulary, parser),
+                    new RadiusUI<>(space, vocabulary, parser),
+                    new MarkerUI<>(space, vocabulary, parser)
+            );
+
+            AppUIManager<String> uiManager = new AppUIManager<>(space, strategies, views, commands, true);
             Scene scene = new Scene(uiManager.getRoot(), 1200, 750);
 
             try {

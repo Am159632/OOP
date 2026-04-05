@@ -10,13 +10,14 @@ import ui.UIUtils;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class RadiusUI<T> extends AbstractSpaceCommand<T> {
     private ComboBox<T> comboTarget;
     private TextField txtRadius;
 
-    public RadiusUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
-        super(space);
+    public RadiusUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary, Function<String, T> parser) {
+        super(space,parser);
         comboTarget = UIUtils.createSearchableComboBox(vocabulary);
         txtRadius = new TextField();
         txtRadius.setPromptText("Max Distance");

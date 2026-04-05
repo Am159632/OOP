@@ -7,12 +7,13 @@ import javafx.scene.control.ComboBox;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class AnalogyUI<T> extends AbstractSpaceCommand<T> {
     private ComboBox<T> comboW1, comboW2, comboW3;
 
-    public AnalogyUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary) {
-        super(space);
+    public AnalogyUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary, Function<String, T> parser) {
+        super(space, parser);
         comboW1 = UIUtils.createSearchableComboBox(vocabulary);
         comboW2 = UIUtils.createSearchableComboBox(vocabulary);
         comboW3 = UIUtils.createSearchableComboBox(vocabulary);

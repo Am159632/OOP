@@ -4,7 +4,7 @@ public class CosineStrategy implements DistanceStrategy {
     @Override
     public double calculate(double[] v1, double[] v2) {
         if (v1.length != v2.length) {
-            throw new IllegalArgumentException("הוקטורים חייבים להיות באותו אורך!");
+            throw new IllegalArgumentException("Vectors must be of the same length!");
         }
 
         double dotProduct = 0.0;
