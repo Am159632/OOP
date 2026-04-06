@@ -48,7 +48,8 @@ public class MainApp extends Application {
                     new CentroidUI<>(space, parser),
                     new SemanticLineUI<>(space, vocabulary, parser),
                     new RadiusUI<>(space, vocabulary, parser),
-                    new MarkerUI<>(space, vocabulary, parser)
+                    new MarkerUI<>(space, vocabulary, parser),
+                    new CustomUI<>(space, vocabulary, parser)
             );
 
             AppUIManager<String> uiManager = new AppUIManager<>(space, strategies, views, commands, true);
