@@ -14,17 +14,23 @@ import java.util.function.Function;
 
 public class RadiusUI<T> extends AbstractSpaceCommand<T> {
     private ComboBox<T> comboTarget;
-    private TextField txtRadius;
+    private TextField txtMinRadius;
+    private TextField txtMaxRadius;
 
     public RadiusUI(AbstractAnalyzableSpace<T> space, List<T> vocabulary, Function<String, T> parser) {
-        super(space,parser);
+        super(space, parser);
         comboTarget = UIUtils.createSearchableComboBox(vocabulary);
-        txtRadius = new TextField();
-        txtRadius.setPromptText("Max Distance");
+
+        txtMinRadius = new TextField();
+        txtMinRadius.setPromptText("Min Distance");
+
+        txtMaxRadius = new TextField();
+        txtMaxRadius.setPromptText("Max Distance");
 
         uiContainer.getChildren().addAll(
                 UIUtils.createClearableComboRow(comboTarget, "Target Item"),
-                txtRadius
+                txtMinRadius,
+                txtMaxRadius
         );
     }
 
@@ -36,8 +42,10 @@ public class RadiusUI<T> extends AbstractSpaceCommand<T> {
         T target = getComboValue(comboTarget);
         if (target == null) throw new IllegalArgumentException("Empty Target");
 
-        double radius = Double.parseDouble(txtRadius.getText());
-        return new RadiusAction<>(space, visualizer, strategy, target, radius);
+        double minR = Double.parseDouble(txtMinRadius.getText());
+        double maxR = Double.parseDouble(txtMaxRadius.getText());
+
+        return new RadiusAction<>(space, visualizer, strategy, target, minR, maxR);
     }
 
     @Override

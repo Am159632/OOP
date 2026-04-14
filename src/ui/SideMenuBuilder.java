@@ -40,9 +40,6 @@ public class SideMenuBuilder<T> {
             sideMenu.getChildren().addAll(section.build(), new Separator());
         }
 
-        VBox.setVgrow(console, Priority.ALWAYS);
-        sideMenu.getChildren().add(console);
-
         return sideMenu;
     }
 }

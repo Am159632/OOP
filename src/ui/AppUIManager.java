@@ -4,6 +4,7 @@ import core.*;
 import math.*;
 import actions.*;
 
+import javafx.geometry.Orientation;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import visuals.AbstractSpaceVisualizer;
@@ -53,19 +54,41 @@ public class AppUIManager<T> {
             if (activeCommand != null) activeCommand.onNodeClicked(item);
         });
 
-        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
+        MenuBar topMenu = new MenuBar();
+        Menu fileMenu = new Menu("File");
+        MenuItem exitItem = new MenuItem("Exit");
+        exitItem.setOnAction(e -> System.exit(0));
+        fileMenu.getItems().add(exitItem);
+
+        Menu viewMenu = new Menu("View");
+        MenuItem clearVisualsItem = new MenuItem("Clear Screen");
+        clearVisualsItem.setOnAction(e -> multiVisualizer.clearHighlights());
+        viewMenu.getItems().add(clearVisualsItem);
+
+        topMenu.getMenus().addAll(fileMenu, viewMenu);
+        rootPane.setTop(topMenu);
+
         TextArea txtConsole = new TextArea("System Ready...\n");
         txtConsole.setEditable(false);
         txtConsole.setWrapText(true);
-        txtConsole.setPrefRowCount(8);
+        txtConsole.setStyle("-fx-font-family: monospace; -fx-font-size: 14px;");
 
+        SplitPane verticalSplit = new SplitPane();
+        verticalSplit.setOrientation(Orientation.VERTICAL);
+        verticalSplit.getItems().addAll(centerViewPane, txtConsole);
+        verticalSplit.setDividerPositions(0.75);
+
+        verticalSplit.setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-background-insets: 0;");
+
+        rootPane.setCenter(verticalSplit);
+
+        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
         ComboBox<GUIVisualizer<T>> viewSelector = new ComboBox<>();
         viewSelector.getItems().addAll(activeViews);
         viewSelector.setValue(activeViews.get(0));
 
         VBox sideMenu = builder.build(txtConsole, viewSelector);
         rootPane.setRight(sideMenu);
-        rootPane.setCenter(centerViewPane);
 
         int initialDimensions = activeViews.get(0).getDimensions();
         updatePcaLogic(getSavedPcaValues(initialDimensions));
@@ -99,9 +122,7 @@ public class AppUIManager<T> {
 
         try {
             multiVisualizer.clearHighlights();
-
             String result = new PcaCommand<>(space, targetAxes).execute(multiVisualizer);
-
             AppAction<T> lastFunc = history.peekUndo();
             if (lastFunc != null) {
                 result += "\n[Re-applied]: " + lastFunc.execute();

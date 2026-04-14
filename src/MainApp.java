@@ -28,16 +28,15 @@ public class MainApp extends Application {
             Set<String> items = space.getItems("FULL");
             if (items != null) vocabulary.addAll(items);
 
+            List<AbstractSpaceVisualizer<String, ?>> views = List.of(
+                    new Space2DVisualizer<>(),
+                    new Space3DVisualizer<>()
+            );
+
             List<DistanceStrategy> strategies = List.of(
                     new EuclideanStrategy(),
                     new CosineStrategy(),
                     new ManhattanStrategy()
-            );
-
-            List<AbstractSpaceVisualizer<String, ?>> views = List.of(
-                    new Space1DVisualizer<>(),
-                    new Space2DVisualizer<>(),
-                    new Space3DVisualizer<>()
             );
 
             Function<String, String> parser = id -> id;

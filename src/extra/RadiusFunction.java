@@ -10,11 +10,13 @@ import java.util.List;
 public class RadiusFunction<T> implements SpaceFunction<T, List<T>> {
     private String spaceName;
     private T targetId;
+    private double minRadius;
     private double maxRadius;
 
-    public RadiusFunction(String spaceName, T targetId, double maxRadius) {
+    public RadiusFunction(String spaceName, T targetId,double minRadius, double maxRadius) {
         this.spaceName = spaceName;
         this.targetId = targetId;
+        this.minRadius=minRadius;
         this.maxRadius = maxRadius;
     }
 
@@ -31,7 +33,7 @@ public class RadiusFunction<T> implements SpaceFunction<T, List<T>> {
             double[] currentVec = space.getVector(spaceName, currentId);
             if (currentVec != null) {
                 double dist = strategy.calculate(targetVector, currentVec);
-                if (dist <= maxRadius) {
+                if (dist >=minRadius && dist <= maxRadius) {
                     itemsInRadius.add(currentId);
                 }
             }
