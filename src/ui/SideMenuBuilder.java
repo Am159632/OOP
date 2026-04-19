@@ -19,11 +19,7 @@ public class SideMenuBuilder<T> {
         sideMenu.setPadding(new Insets(20));
         sideMenu.setPrefWidth(350);
 
-        sideMenu.getChildren().addAll(selector, new Separator());
-
         List<MenuSection> sections = new ArrayList<>();
-
-        sections.add(new PcaSection<>(uiManager, selector, console));
 
         if (uiManager.isZoomEnabled()) {
             sections.add(new ZoomSection<>(selector));
@@ -39,6 +35,9 @@ public class SideMenuBuilder<T> {
         for (MenuSection section : sections) {
             sideMenu.getChildren().addAll(section.build(), new Separator());
         }
+
+        VBox.setVgrow(console, Priority.ALWAYS);
+        sideMenu.getChildren().add(console);
 
         return sideMenu;
     }

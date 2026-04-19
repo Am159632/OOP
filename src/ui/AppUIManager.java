@@ -4,7 +4,6 @@ import core.*;
 import math.*;
 import actions.*;
 
-import javafx.geometry.Orientation;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import visuals.AbstractSpaceVisualizer;
@@ -18,11 +17,10 @@ public class AppUIManager<T> {
     private AbstractAnalyzableSpace<T> space;
     private MultiSpaceVisualizer<T> multiVisualizer;
     private StackPane centerViewPane;
+    private TextArea txtConsole;
 
     private List<DistanceStrategy> strategies;
-    private DistanceStrategy currentStrategy;
-    private List<SpaceCommand<T>> availableCommands;
-    private SpaceCommand<T> activeCommand;
+    private CommandManager<T> commandManager;
     private boolean enableZoom;
 
     private HistoryManager<T> history;
@@ -39,21 +37,44 @@ public class AppUIManager<T> {
         this.enableZoom = enableZoom;
 
         this.strategies = (providedStrategies != null) ? providedStrategies : new ArrayList<>();
-        this.availableCommands = (providedCommands != null) ? providedCommands : new ArrayList<>();
+        List<SpaceCommand<T>> commands = (providedCommands != null) ? providedCommands : new ArrayList<>();
 
-        if (!this.strategies.isEmpty()) {
-            this.currentStrategy = this.strategies.get(0);
-        }
+        DistanceStrategy initialStrategy = this.strategies.isEmpty() ? null : this.strategies.get(0);
+        this.commandManager = new CommandManager<>(commands, initialStrategy);
 
         multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
-
         centerViewPane = new StackPane(activeViews.get(0).getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
-
         multiVisualizer.setOnNodeClicked(item -> {
-            if (activeCommand != null) activeCommand.onNodeClicked(item);
+            SpaceCommand<T> activeCmd = commandManager.getActiveCommand();
+            if (activeCmd != null) activeCmd.onNodeClicked(item);
         });
 
+        txtConsole = new TextArea("System Ready...\n");
+        txtConsole.setEditable(false);
+        txtConsole.setWrapText(true);
+        txtConsole.setStyle("-fx-font-family: monospace; -fx-font-size: 14px;");
+
+        ComboBox<GUIVisualizer<T>> viewSelector = buildViewSelector(activeViews);
+        MenuBar topMenu = buildTopMenu();
+        PcaTopBar<T> pcaTopBar = new PcaTopBar<>(this, txtConsole);
+        configureViewSelector(viewSelector, pcaTopBar);
+
+        HBox topContainer = new HBox(15);
+        topContainer.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        topContainer.getChildren().addAll(topMenu, new Label("  View:"), viewSelector, pcaTopBar.build());
+        rootPane.setTop(topContainer);
+
+        rootPane.setCenter(centerViewPane);
+
+        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
+        VBox sideMenu = builder.build(txtConsole, viewSelector);
+        rootPane.setRight(sideMenu);
+
+        pcaTopBar.updateDimensions(activeViews.get(0).getDimensions());
+    }
+
+    private MenuBar buildTopMenu() {
         MenuBar topMenu = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
@@ -66,41 +87,24 @@ public class AppUIManager<T> {
         viewMenu.getItems().add(clearVisualsItem);
 
         topMenu.getMenus().addAll(fileMenu, viewMenu);
-        rootPane.setTop(topMenu);
+        return topMenu;
+    }
 
-        TextArea txtConsole = new TextArea("System Ready...\n");
-        txtConsole.setEditable(false);
-        txtConsole.setWrapText(true);
-        txtConsole.setStyle("-fx-font-family: monospace; -fx-font-size: 14px;");
-
-        SplitPane verticalSplit = new SplitPane();
-        verticalSplit.setOrientation(Orientation.VERTICAL);
-        verticalSplit.getItems().addAll(centerViewPane, txtConsole);
-        verticalSplit.setDividerPositions(0.75);
-
-        verticalSplit.setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-background-insets: 0;");
-
-        rootPane.setCenter(verticalSplit);
-
-        SideMenuBuilder<T> builder = new SideMenuBuilder<>(this);
+    private ComboBox<GUIVisualizer<T>> buildViewSelector(List<AbstractSpaceVisualizer<T, ?>> activeViews) {
         ComboBox<GUIVisualizer<T>> viewSelector = new ComboBox<>();
         viewSelector.getItems().addAll(activeViews);
         viewSelector.setValue(activeViews.get(0));
-
-        VBox sideMenu = builder.build(txtConsole, viewSelector);
-        rootPane.setRight(sideMenu);
-
-        int initialDimensions = activeViews.get(0).getDimensions();
-        updatePcaLogic(getSavedPcaValues(initialDimensions));
+        return viewSelector;
     }
 
-    public BorderPane getRoot() { return rootPane; }
-    public StackPane getCenterViewPane() { return centerViewPane; }
-    public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
-    public List<DistanceStrategy> getStrategies() { return strategies; }
-    public List<SpaceCommand<T>> getAvailableCommands() { return availableCommands; }
-    public HistoryManager<T> getHistory() { return history; }
-    public boolean isZoomEnabled() { return enableZoom;}
+    private void configureViewSelector(ComboBox<GUIVisualizer<T>> viewSelector, PcaTopBar<T> pcaTopBar) {
+        viewSelector.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                centerViewPane.getChildren().setAll(newVal.getVisualNode());
+                pcaTopBar.updateDimensions(newVal.getDimensions());
+            }
+        });
+    }
 
     public String[] getSavedPcaValues(int dimensions) {
         return pcaHistory.computeIfAbsent(dimensions, dim -> {
@@ -134,24 +138,23 @@ public class AppUIManager<T> {
     }
 
     public void updateActiveCommand(String name, VBox container) {
-        container.getChildren().clear();
-        for (SpaceCommand<T> cmd : availableCommands) {
-            if (cmd.getName().equals(name)) {
-                activeCommand = cmd;
-                activeCommand.setStrategy(currentStrategy);
-                container.getChildren().add(activeCommand.getUI());
-                break;
-            }
-        }
+        commandManager.updateActiveCommand(name, container);
     }
 
     public AppAction<T> generateActiveAction() {
-        if (activeCommand == null) return null;
-        return activeCommand.generateAction(multiVisualizer);
+        return commandManager.generateActiveAction(multiVisualizer);
     }
 
     public void setStrategy(DistanceStrategy s) {
-        this.currentStrategy = s;
-        if (activeCommand != null) activeCommand.setStrategy(s);
+        commandManager.setStrategy(s);
     }
+
+    public BorderPane getRoot() { return rootPane; }
+    public StackPane getCenterViewPane() { return centerViewPane; }
+    public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
+    public List<DistanceStrategy> getStrategies() { return strategies; }
+    public List<SpaceCommand<T>> getAvailableCommands() { return commandManager.getAvailableCommands(); }
+    public HistoryManager<T> getHistory() { return history; }
+    public boolean isZoomEnabled() { return enableZoom;}
+    public AbstractAnalyzableSpace<T> getSpace() { return space; }
 }

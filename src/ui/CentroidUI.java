@@ -12,11 +12,15 @@ import java.util.stream.Collectors;
 
 public class CentroidUI<T> extends AbstractSpaceCommand<T> {
     private TextField txtGroup;
+    private TextField txtK;
 
     public CentroidUI(AbstractAnalyzableSpace<T> space, Function<String, T> parser) {
         super(space, parser);
         txtGroup = new TextField();
-        uiContainer.getChildren().add(UIUtils.createClearableTextRow(txtGroup, "Items separated by commas"));
+        txtK=new TextField();
+        txtK.setPromptText("Amount of closest words (K)");
+        uiContainer.getChildren().addAll(
+                UIUtils.createClearableTextRow(txtGroup, "Items separated by commas"), txtK);
     }
 
     @Override
@@ -31,7 +35,9 @@ public class CentroidUI<T> extends AbstractSpaceCommand<T> {
                 .map(parser)
                 .collect(Collectors.toList());
 
-        return new CentroidAction<>(space, visualizer, strategy, group);
+        int k = Integer.parseInt(txtK.getText());
+
+        return new CentroidAction<>(space, visualizer, strategy, group,k);
     }
 
     @Override

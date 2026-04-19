@@ -3,6 +3,8 @@ package ui;
 import math.DistanceStrategy;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CalculationMethodSection<T> extends AbstractMenuSection {
     private AppUIManager<T> uiManager;
@@ -14,16 +16,20 @@ public class CalculationMethodSection<T> extends AbstractMenuSection {
 
     @Override
     protected void buildContent(VBox container) {
-        ComboBox<DistanceStrategy> distanceBox = new ComboBox<>();
-        distanceBox.getItems().addAll(uiManager.getStrategies());
+        List<DistanceStrategy> strategies = new ArrayList<>(uiManager.getStrategies());
+        ComboBox<DistanceStrategy> distanceBox = UIUtils.createSearchableComboBox(strategies);
 
-        if (!distanceBox.getItems().isEmpty()) {
-            distanceBox.setValue(distanceBox.getItems().get(0));
+        if (!strategies.isEmpty()) {
+            distanceBox.setValue(strategies.get(0));
             uiManager.setStrategy(distanceBox.getValue());
         }
 
         distanceBox.setMaxWidth(Double.MAX_VALUE);
-        distanceBox.setOnAction(e -> uiManager.setStrategy(distanceBox.getValue()));
+        distanceBox.setOnAction(e -> {
+            if (distanceBox.getValue() != null) {
+                uiManager.setStrategy(distanceBox.getValue());
+            }
+        });
 
         container.getChildren().add(distanceBox);
     }

@@ -4,6 +4,8 @@ import actions.AppAction;
 import actions.HistoryManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnalysisSection<T> extends AbstractMenuSection {
     private AppUIManager<T> uiManager;
@@ -20,8 +22,11 @@ public class AnalysisSection<T> extends AbstractMenuSection {
 
     @Override
     protected void buildContent(VBox container) {
-        actionBox = new ComboBox<>();
-        uiManager.getAvailableCommands().forEach(cmd -> actionBox.getItems().add(cmd.getName()));
+        List<String> commandNames = new ArrayList<>();
+        uiManager.getAvailableCommands().forEach(cmd -> commandNames.add(cmd.getName()));
+
+        actionBox = UIUtils.createSearchableComboBox(commandNames);
+
         if (!uiManager.getAvailableCommands().isEmpty()) {
             actionBox.setValue(uiManager.getAvailableCommands().get(0).getName());
         }

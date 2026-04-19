@@ -5,33 +5,39 @@ import math.*;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CentroidAction<T> extends AbstractAnalysisAction<T> {
     private List<T> group;
-    private T result;
+    private List<ItemDistance<T>> result;
+    private int k;
 
-    public CentroidAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, List<T> group) {
+    public CentroidAction(AbstractAnalyzableSpace<T> space, SpaceVisualizer<T> visualizer, DistanceStrategy strategy, List<T> group, int k) {
         super(space, visualizer, strategy);
         this.group = group;
+        this.k = k;
     }
 
     @Override
     public String execute() {
         if (!isCalculated) {
-            CentroidFunction<T> centroidFunc = new CentroidFunction<>("FULL", group);
+            SpaceFunction<T, List<ItemDistance<T>>> centroidFunc = new CentroidFunction<>("FULL", group, k);
             result = space.executeFunction(centroidFunc, strategy);
             isCalculated = true;
         }
 
-        if (result != null) {
+        if (result != null && !result.isEmpty()) {
             visualizer.highlightItems(group, "#007BFF");
-            visualizer.highlightItems(List.of(result), "#28A745");
 
-            for (T member : group) {
-                visualizer.drawLine(member, result, "#A9A9A9", 1.0);
+            List<T> closestIds = result.stream().map(ItemDistance::getId).collect(Collectors.toList());
+            visualizer.highlightItems(closestIds, "#28A745");
+
+            StringBuilder sb = new StringBuilder("Centroid calculated. Top " + k + " closest:\n");
+            for (ItemDistance<T> res : result) {
+                sb.append("- ").append(res.getId()).append(String.format(" (Distance: %.4f)\n", res.getDistance()));
             }
 
-            return "Centroid of the group is: " + result + " (Strategy: " + strategy.toString() + ")";
+            return sb.toString() + "\n(Strategy: " + strategy.toString() + ")";
         }
         return "No centroid found.";
     }
@@ -43,6 +49,6 @@ public class CentroidAction<T> extends AbstractAnalysisAction<T> {
 
         CentroidAction<?> that = (CentroidAction<?>) obj;
 
-        return group.containsAll(that.group) && group.size() == that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
+        return k == that.k && group.containsAll(that.group) && group.size() == that.group.size() && this.strategy.getClass().equals(that.strategy.getClass());
     }
 }

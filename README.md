@@ -1,45 +1,106 @@
 # 🌌 Semantic Space Analyzer & Visualizer
 
-A robust, multi-layered, enterprise-grade Java application designed to analyze, query, and visualize high-dimensional semantic spaces (such as Word2Vec embeddings).
-
-This tool provides an interactive environment to navigate latent text spaces, perform complex mathematical NLP queries, and visualize the relationships between vectors in both 2D and dynamic 3D environments.
-
----
-
-## 🏗️ Architecture & SOLID Principles
-
-This project features a highly decoupled architecture built with strict adherence to **Object-Oriented Design** and **SOLID principles**, ensuring a scalable and maintainable codebase:
-
-* **Single Responsibility Principle (SRP):** Complete decoupling of the mathematical engine from the UI. Mathematical calculations live in `SpaceFunction` implementations, while UI rendering and state management are handled by `AppAction` classes.
-* **Open/Closed Principle (OCP):** The system is open for extension but closed for modification. New distance metrics or search algorithms can be added simply by implementing their respective interfaces, without altering a single line of the core engine.
-* **Liskov Substitution Principle (LSP):** Heavy reliance on abstract classes and interfaces (`SpaceFunction`, `AppAction`) ensures that any derived class (e.g., `RadiusFunction` or `KnnFunction`) can replace its parent seamlessly without breaking system behavior.
-* **Interface Segregation Principle (ISP):** Interfaces are kept lean and highly specific to the clients that use them (e.g., separating `SpaceComponent` for data access from UI event listeners).
-* **Dependency Inversion Principle (DIP):** High-level modules (like `AppUIManager`) depend entirely on abstractions (`DistanceStrategy`, `SpaceVisualizer`), never on low-level concrete implementations.
+JavaFX application for analyzing and visualizing semantic spaces (word embeddings) in 2D/3D.
+This project was built for an Object-Oriented Programming course, with emphasis on SOLID and practical design patterns.
 
 ---
 
-## 🛠️ Design Patterns Utilized
+## 1) Project Overview and Course Context
 
-To manage the complexity of the application, several industry-standard design patterns were masterfully implemented:
+The system loads vectors from JSON files, runs mathematical analysis (distance, KNN, centroid, semantic-line projection), and presents results both as text and as interactive visualization.
 
-1. **Template Method (`AbstractSpaceVisualizer`):** A cornerstone of the rendering architecture. The abstract base class implements all the common, shared rendering logic (e.g., managing highlights, clearing the screen), while leaving the specific rendering hooks to be implemented by its subclasses (`Space2DVisualizer` and `Space3DVisualizer`). This perfectly aligns with the DRY (Don't Repeat Yourself) principle.
-2. **Factory Method (`SpaceCommand`):** Used seamlessly to bridge UI inputs with execution logic. The `SpaceCommand` interface (and its concrete UI implementations like `RadiusUI`) acts as a factory. It encapsulates user input and dynamically generates the correct `AppAction` object via the `generateAction()` method.
-3. **Command Pattern (`AppAction`):** Every user query is encapsulated into a standalone command object (produced by the Factory). This isolates execution logic and enables a flawless, **O(1)** `Undo/Redo` History mechanism that prevents duplicate states.
-4. **Composite Pattern (`CompositeSpace`):** Manages a hierarchical tree of vector spaces. The system queries the `CompositeSpace` through a uniform interface, remaining completely agnostic to whether it is querying a single space or a complex tree of multiple dimensions (FULL vs. PCA).
-5. **Strategy Pattern (`DistanceStrategy`):** Encapsulates the mathematical algorithms used to measure vector distance (`CosineStrategy`, `EuclideanStrategy`), allowing them to be swapped dynamically at runtime.
+From a course perspective, it demonstrates:
+
+- layered architecture with clear responsibility boundaries
+- programming against abstractions (interfaces/abstract classes)
+- safe extensibility without breaking the core flow
+- practical usage of classic design patterns
+
+### What you can do in the application
+
+- run distance queries between words
+- find nearest neighbors (KNN)
+- compute centroid-based similarity
+- project vocabulary on a semantic line/axis
+- solve analogy-style vector queries
+- switch distance metric at runtime (Euclidean / Cosine / Manhattan)
+- visualize results in both 2D and 3D views with highlighting
+- use action history (undo/redo) and PCA projection controls
 
 ---
 
-## 🚀 Key Features
+## 2) Package Structure and Responsibilities
 
-* **Advanced NLP Queries:** Supports K-Nearest Neighbors (KNN), Radius/Donut Search (Min & Max distances), Vector Arithmetic (Analogies), and Semantic Axis Projections.
-* **Interactive Visualizations:** Custom JavaFX rendering engine supporting 3D SubScene camera navigation, zooming, and panning, alongside a responsive 2D canvas.
-* **Algorithmic Efficiency:** Achieves **O(1)** time complexity for vector retrieval using internal HashMaps, and **O(1)** for State History adjustments using optimized Dual-Stacks.
+| Package | Responsibility | Main classes |
+|---|---|---|
+| `core` | Space storage and loading | `AbstractAnalyzableSpace`, `AnalyzableSpace`, `SpaceComponent`, `SingleSpace`, `CompositeSpace`, `SpaceLoader`, `JsonSpaceLoader`, `OurSpace`, `PointData`, `ItemDistance`, `DistanceComparator` |
+| `math` | Algorithms and distance metrics | `SpaceFunction`, `DistanceFunction`, `KnnFunction`, `CentroidFunction`, `ProjectionFunction`, `SimilaritySearcher`, `DistanceStrategy`, `EuclideanStrategy`, `CosineStrategy` |
+| `actions` | User-level executable operations and history | `AppAction`, `AbstractAnalysisAction`, `DistanceAction`, `KnnAction`, `CentroidAction`, `SemanticLineAction`, `PcaCommand`, `HistoryManager` |
+| `ui` | UI orchestration, menus, and input handling | `AppUIManager`, `CommandManager`, `SideMenuBuilder`, `PcaTopBar`, `SpaceCommand`, `AbstractSpaceCommand`, `KnnUI`, `DistanceUI`, `CentroidUI`, `SemanticLineUI`, `AnalogyUI`, `MenuSection`, `AbstractMenuSection`, `AnalysisSection`, `CalculationMethodSection`, `HistorySection`, `ZoomSection`, `UIUtils` |
+| `visuals` | Rendering, highlight, and multi-view coordination | `SpaceVisualizer`, `GUIVisualizer`, `AbstractSpaceVisualizer`, `Space2DVisualizer`, `Space3DVisualizer`, `MultiSpaceVisualizer` |
 
 ---
 
-## 📐 System Architecture Flow (UML)
+## 3) Design Patterns Used
 
-The following diagram illustrates the high-level flow of data and dependencies across the core system packages.
+### Composite Pattern (`core`)
+`SpaceComponent` + `SingleSpace` + `CompositeSpace` provide a unified way to work with either a single space or a group of spaces.
 
-![System Architecture](architecture.png)
+### Strategy Pattern (`math`)
+`DistanceStrategy` with concrete implementations (`EuclideanStrategy`, `CosineStrategy`) allows runtime switching of metric logic.
+
+### Command Pattern (`actions`)
+Each analysis request is modeled as an `AppAction` object, and `HistoryManager` stores action history for undo/redo.
+
+### Template Method Pattern (`visuals`)
+`AbstractSpaceVisualizer` defines the common rendering workflow, while `Space2DVisualizer` and `Space3DVisualizer` implement the view-specific details.
+
+### Facade Pattern (`ui` and `visuals`)
+- `AppUIManager` acts as a facade for the UI layer (commands, history, PCA, and views).
+- `MultiSpaceVisualizer` acts as a facade over multiple active visualizers.
+
+### Factory Method (UI commands)
+`SpaceCommand` classes construct concrete `AppAction` instances from user input through `generateAction(...)`.
+
+### Builder Pattern (`ui`)
+`SideMenuBuilder` builds the side-menu structure from reusable sections.
+
+---
+
+## 4) SOLID Principles in the Project
+
+- **SRP**: each package focuses on one domain concern (data, algorithms, actions, UI, rendering).
+- **OCP**: new features are usually added through new classes + registration in `MainApp`.
+- **LSP**: `DistanceStrategy` and `AppAction` implementations are interchangeable via their contracts.
+- **ISP**: small, focused interfaces are used (`AppAction`, `SpaceCommand`, `DistanceStrategy`, `SpaceVisualizer`).
+- **DIP**: high-level flow depends on abstractions rather than concrete low-level implementations.
+
+---
+
+## 5) How to Extend the Project
+
+### Add a new analysis feature (full flow)
+1. Create `MyFeatureFunction` in `src/math` that **implements** `SpaceFunction<T, R>`.
+2. Create `MyFeatureAction` in `src/actions` that **extends** `AbstractAnalysisAction<T>`.
+3. Create `MyFeatureUI` in `src/ui` that **extends** `AbstractSpaceCommand<T>` and returns `MyFeatureAction` from `generateAction(...)`.
+4. Add the new UI command to the command list in `src/MainApp.java`.
+
+### Add a new distance metric
+1. Create `MyMetricStrategy` in `src/math` that **implements** `DistanceStrategy`.
+2. Add it to the strategies list in `src/MainApp.java`.
+3. It becomes available automatically for commands that use the selected strategy.
+
+### Add a new graphics view
+1. Create `MySpaceVisualizer` in `src/visuals` that **extends** `AbstractSpaceVisualizer<T, V>`.
+2. Implement the required rendering hooks (shape creation, highlight/unhighlight, scene clear, visual node).
+3. Add the visualizer instance to the active views list in `src/MainApp.java`.
+
+---
+
+## 6) Architecture Diagram
+
+<p align="center">
+  <img src="architecture.png" alt="System Architecture UML" width="1050"/>
+</p>
+
+

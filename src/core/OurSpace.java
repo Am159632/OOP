@@ -42,7 +42,7 @@ public class OurSpace extends AbstractAnalyzableSpace<String> {
         SpaceLoader<String> fullLoader = new JsonSpaceLoader<>(fullPath, "FULL", id -> id);
         SpaceLoader<String> pcaLoader = new JsonSpaceLoader<>(pcaPath, "PCA", id -> id);
 
-        latentSpace.addSpace(fullLoader.load());
-        latentSpace.addSpace(pcaLoader.load());
+        latentSpace.addSpace("FULL", fullLoader.load());
+        latentSpace.addSpace("PCA", pcaLoader.load());
     }
 }

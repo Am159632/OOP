@@ -5,21 +5,23 @@ import core.SpaceComponent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CentroidFunction<T> implements SpaceFunction<T, T> {
+public class CentroidFunction<T> implements SpaceFunction<T, List<ItemDistance<T>>> {
     private String spaceName;
     private List<T> group;
+    private int k;
 
-    public CentroidFunction(String spaceName, List<T> group) {
+    public CentroidFunction(String spaceName, List<T> group, int k) {
         this.spaceName = spaceName;
         this.group = group;
+        this.k = k;
     }
 
     @Override
-    public T execute(SpaceComponent<T> space, DistanceStrategy strategy) {
-        if (group == null || group.isEmpty()) return null;
+    public List<ItemDistance<T>> execute(SpaceComponent<T> space, DistanceStrategy strategy) {
+        if (group == null || group.isEmpty()) return new ArrayList<>();
 
         double[] first = space.getVector(spaceName, group.get(0));
-        if (first == null) return null;
+        if (first == null) return new ArrayList<>();
 
         double[] sumVec = new double[first.length];
         int count = 0;
@@ -32,12 +34,10 @@ public class CentroidFunction<T> implements SpaceFunction<T, T> {
             }
         }
 
-        if (count == 0) return null;
+        if (count == 0) return new ArrayList<>();
 
         for (int i = 0; i < sumVec.length; i++) sumVec[i] /= count;
 
-        List<ItemDistance<T>> closest = SimilaritySearcher.findKClosest(sumVec, new ArrayList<>(), space, strategy, spaceName, 1);
-
-        return closest.isEmpty() ? null : closest.get(0).getId();
+        return SimilaritySearcher.findKClosest(sumVec, new ArrayList<>(), space, strategy, spaceName, k);
     }
 }
