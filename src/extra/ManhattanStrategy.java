@@ -1,23 +1,10 @@
 package extra;
 
-import math.DistanceStrategy;
-
-public class ManhattanStrategy implements DistanceStrategy {
-    @Override
-    public double calculate(double[] v1, double[] v2) {
-        if (v1.length != v2.length) {
-            throw new IllegalArgumentException("Vectors must be of the same length!");
-        }
-
-        double sum = 0.0;
-        for (int i = 0; i < v1.length; i++) {
-            sum += Math.abs(v1[i] - v2[i]);
-        }
-        return sum;
-    }
-
-    @Override
-    public String toString() {
-        return "Manhattan distance";
-    }
+/**
+ * @deprecated Use {@link math.ManhattanStrategy} instead.
+ *             This class has been moved to the {@code math} package
+ *             where all distance strategies reside.
+ */
+@Deprecated
+public class ManhattanStrategy extends math.ManhattanStrategy {
 }

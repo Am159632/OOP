@@ -3,6 +3,7 @@ package extra;
 import actions.AbstractAnalysisAction;
 import core.*;
 import math.*;
+import visuals.HighlightColors;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
@@ -32,13 +33,13 @@ public class RadiusAction<T> extends AbstractAnalysisAction<T> {
     @Override
     public String execute() {
         if (!isCalculated) {
-            RadiusFunction<T> func = new RadiusFunction<>("FULL", target, minradius, maxradius);
+            RadiusFunction<T> func = new RadiusFunction<>(SpaceNames.FULL, target, minradius, maxradius);
             foundItems = space.executeFunction(func, strategy);
             isCalculated = true;
         }
 
-        visualizer.highlightItems(List.of(target), "#007BFF");
-        visualizer.highlightItems(foundItems, "#28A745");
+        visualizer.highlightItems(List.of(target), HighlightColors.PRIMARY);
+        visualizer.highlightItems(foundItems, HighlightColors.SUCCESS);
 
         for (T item : foundItems) {
             visualizer.drawLine(target, item, "#A9A9A9", 1.5);
@@ -59,7 +60,7 @@ public class RadiusAction<T> extends AbstractAnalysisAction<T> {
             sb.append(foundItems.toString());
         }
 
-        sb.append("\n[Strategy: ").append(strategy.getClass().getSimpleName()).append("]");
+        sb.append("\n[Strategy: ").append(strategy.getName()).append("]");
 
         return sb.toString();
     }

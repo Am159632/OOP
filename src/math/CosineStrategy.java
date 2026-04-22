@@ -25,7 +25,12 @@ public class CosineStrategy implements DistanceStrategy {
     }
 
     @Override
-    public String toString(){
+    public String getName() {
         return "Cosine distance";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

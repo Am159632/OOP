@@ -25,8 +25,8 @@ public class MainApp extends Application {
             space.loadFiles("C:/Users/asafm/IdeaProjects/OOP/full_vectors.json", "C:/Users/asafm/IdeaProjects/OOP/pca_vectors.json");
 
             List<String> vocabulary = new ArrayList<>();
-            Set<String> items = space.getItems("FULL");
-            if (items != null) vocabulary.addAll(items);
+            Set<String> items = space.getItems(SpaceNames.FULL);
+            vocabulary.addAll(items);
 
             List<AbstractSpaceVisualizer<String, ?>> views = List.of(
                     new Space2DVisualizer<>(),

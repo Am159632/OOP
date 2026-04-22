@@ -2,6 +2,7 @@ package actions;
 
 import core.*;
 import math.*;
+import visuals.HighlightColors;
 import visuals.SpaceVisualizer;
 
 import java.util.Collections;
@@ -26,7 +27,7 @@ public class SemanticLineAction<T> extends AbstractAnalysisAction<T> {
     @Override
     public String execute() {
         if (!isCalculated) {
-            ProjectionFunction<T> func = new ProjectionFunction<>("FULL", start, end);
+            ProjectionFunction<T> func = new ProjectionFunction<>(SpaceNames.FULL, start, end);
             List<ItemDistance<T>> projections = space.executeFunction(func, strategy);
 
             projections.sort(Comparator.comparingDouble(ItemDistance::getDistance));
@@ -41,16 +42,16 @@ public class SemanticLineAction<T> extends AbstractAnalysisAction<T> {
             closeToStart.forEach(word -> sb.append("- ").append(word).append("\n"));
             sb.append("\nTop ").append(k).append(" closest to '").append(end).append("':\n");
             closeToEnd.forEach(word -> sb.append("- ").append(word).append("\n"));
-            output = sb.toString() + "\n(Strategy: " + strategy.toString() + ")";
+            output = sb.toString() + "\n(Strategy: " + strategy.getName() + ")";
 
             isCalculated = true;
         }
 
-        visualizer.highlightItems(List.of(start, end), "#007BFF");
-        visualizer.highlightItems(closeToStart, "#28A745");
-        visualizer.highlightItems(closeToEnd, "#DC3545");
+        visualizer.highlightItems(List.of(start, end), HighlightColors.PRIMARY);
+        visualizer.highlightItems(closeToStart, HighlightColors.SUCCESS);
+        visualizer.highlightItems(closeToEnd, HighlightColors.DANGER);
 
-        visualizer.drawLine(start, end, "#007BFF", 4.0);
+        visualizer.drawLine(start, end, HighlightColors.PRIMARY, 4.0);
 
         return output;
     }

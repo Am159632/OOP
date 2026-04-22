@@ -1,5 +1,6 @@
 package core;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class CompositeSpace<T> implements SpaceComponent<T> {
     @Override
     public Set<T> getItems(String targetSpaceName) {
         SpaceComponent<T> space = childrenByName.get(targetSpaceName);
-        return space != null ? space.getItems(targetSpaceName) : null;
+        return space != null ? space.getItems(targetSpaceName) : Collections.emptySet();
     }
 
 }

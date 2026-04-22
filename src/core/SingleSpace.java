@@ -1,5 +1,6 @@
 package core;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class SingleSpace<T> implements SpaceComponent<T> {
         if (this.name.equals(targetSpaceName)) {
             return data.keySet();
         }
-        return null;
+        return Collections.emptySet();
     }
 
 }

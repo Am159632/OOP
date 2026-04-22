@@ -1,5 +1,6 @@
 package ui;
 
+import core.SpaceNames;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
@@ -43,9 +44,9 @@ public class PcaTopBar<T> {
 
         int maxDim = 0;
         try {
-            Set<T> items = uiManager.getSpace().getItems("PCA");
-            if (items != null && !items.isEmpty()) {
-                double[] vec = uiManager.getSpace().getVector("PCA", items.iterator().next());
+            Set<T> items = uiManager.getSpace().getItems(SpaceNames.PCA);
+            if (!items.isEmpty()) {
+                double[] vec = uiManager.getSpace().getVector(SpaceNames.PCA, items.iterator().next());
                 maxDim = (vec != null) ? vec.length : 10;
             }
         } catch (Exception e) {

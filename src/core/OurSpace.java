@@ -39,10 +39,10 @@ public class OurSpace extends AbstractAnalyzableSpace<String> {
         } else {
             System.out.println("JSON files already exist! Skipping Python generation. Loading directly...");
         }
-        SpaceLoader<String> fullLoader = new JsonSpaceLoader<>(fullPath, "FULL", id -> id);
-        SpaceLoader<String> pcaLoader = new JsonSpaceLoader<>(pcaPath, "PCA", id -> id);
+        SpaceLoader<String> fullLoader = new JsonSpaceLoader<>(fullPath, SpaceNames.FULL, id -> id);
+        SpaceLoader<String> pcaLoader = new JsonSpaceLoader<>(pcaPath, SpaceNames.PCA, id -> id);
 
-        latentSpace.addSpace("FULL", fullLoader.load());
-        latentSpace.addSpace("PCA", pcaLoader.load());
+        latentSpace.addSpace(SpaceNames.FULL, fullLoader.load());
+        latentSpace.addSpace(SpaceNames.PCA, pcaLoader.load());
     }
 }

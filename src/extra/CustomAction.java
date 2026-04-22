@@ -2,7 +2,9 @@ package extra;
 
 import actions.AbstractAnalysisAction;
 import core.AbstractAnalyzableSpace;
+import core.SpaceNames;
 import math.DistanceStrategy;
+import visuals.HighlightColors;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public class CustomAction<T> extends AbstractAnalysisAction<T> {
     @Override
     public String execute() {
         if (!isCalculated) {
-            CustomFunction<T> func = new CustomFunction<>("FULL", terms);
+            CustomFunction<T> func = new CustomFunction<>(SpaceNames.FULL, terms);
             result = space.executeFunction(func, strategy);
             isCalculated = true;
         }
@@ -29,12 +31,12 @@ public class CustomAction<T> extends AbstractAnalysisAction<T> {
             List<T> positives = terms.stream().filter(t -> t.isAdd).map(t -> t.item).collect(Collectors.toList());
             List<T> negatives = terms.stream().filter(t -> !t.isAdd).map(t -> t.item).collect(Collectors.toList());
 
-            visualizer.highlightItems(positives, "#007BFF");
-            visualizer.highlightItems(negatives, "#DC3545");
-            visualizer.highlightItems(List.of(result), "#28A745");
+            visualizer.highlightItems(positives, HighlightColors.PRIMARY);
+            visualizer.highlightItems(negatives, HighlightColors.DANGER);
+            visualizer.highlightItems(List.of(result), HighlightColors.SUCCESS);
 
-            for (T p : positives) visualizer.drawLine(p, result, "#007BFF", 1.5);
-            for (T n : negatives) visualizer.drawLine(n, result, "#DC3545", 1.5);
+            for (T p : positives) visualizer.drawLine(p, result, HighlightColors.PRIMARY, 1.5);
+            for (T n : negatives) visualizer.drawLine(n, result, HighlightColors.DANGER, 1.5);
 
             StringBuilder sb = new StringBuilder("Equation: ");
             for (int i = 0; i < terms.size(); i++) {
@@ -43,7 +45,7 @@ public class CustomAction<T> extends AbstractAnalysisAction<T> {
                 }
                 sb.append(terms.get(i).item).append(" ");
             }
-            sb.append("= ").append(result).append(" (Strategy: ").append(strategy.toString()).append(")");
+            sb.append("= ").append(result).append(" (Strategy: ").append(strategy.getName()).append(")");
             return sb.toString();
         }
         return "No valid result found.";

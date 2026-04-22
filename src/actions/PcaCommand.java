@@ -19,12 +19,12 @@ public class PcaCommand<T> {
 
     public String execute(SpaceVisualizer<T> visualizer) {
         try {
-            Set<T> items = space.getItems("PCA");
-            if (items == null || items.isEmpty()) return "No items found in PCA space.";
+            Set<T> items = space.getItems(SpaceNames.PCA);
+            if (items.isEmpty()) return "No items found in PCA space.";
 
             int dim = 0;
             for (T item : items) {
-                double[] vector = space.getVector("PCA", item);
+                double[] vector = space.getVector(SpaceNames.PCA, item);
                 if (vector != null && vector.length > 0) {
                     dim = vector.length;
                     break;
@@ -38,7 +38,7 @@ public class PcaCommand<T> {
 
             List<PointData<T>> pointsToDraw = new ArrayList<>();
             for (T item : items) {
-                double[] vector = space.getVector("PCA", item);
+                double[] vector = space.getVector(SpaceNames.PCA, item);
                 if (vector != null && vector.length >= dim) {
                     double[] coords = new double[targetAxes.length];
                     for (int i = 0; i < targetAxes.length; i++) {

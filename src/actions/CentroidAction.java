@@ -2,6 +2,7 @@ package actions;
 
 import core.*;
 import math.*;
+import visuals.HighlightColors;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
@@ -21,23 +22,23 @@ public class CentroidAction<T> extends AbstractAnalysisAction<T> {
     @Override
     public String execute() {
         if (!isCalculated) {
-            SpaceFunction<T, List<ItemDistance<T>>> centroidFunc = new CentroidFunction<>("FULL", group, k);
+            SpaceFunction<T, List<ItemDistance<T>>> centroidFunc = new CentroidFunction<>(SpaceNames.FULL, group, k);
             result = space.executeFunction(centroidFunc, strategy);
             isCalculated = true;
         }
 
         if (result != null && !result.isEmpty()) {
-            visualizer.highlightItems(group, "#007BFF");
+            visualizer.highlightItems(group, HighlightColors.PRIMARY);
 
             List<T> closestIds = result.stream().map(ItemDistance::getId).collect(Collectors.toList());
-            visualizer.highlightItems(closestIds, "#28A745");
+            visualizer.highlightItems(closestIds, HighlightColors.SUCCESS);
 
             StringBuilder sb = new StringBuilder("Centroid calculated. Top " + k + " closest:\n");
             for (ItemDistance<T> res : result) {
                 sb.append("- ").append(res.getId()).append(String.format(" (Distance: %.4f)\n", res.getDistance()));
             }
 
-            return sb.toString() + "\n(Strategy: " + strategy.toString() + ")";
+            return sb.toString() + "\n(Strategy: " + strategy.getName() + ")";
         }
         return "No centroid found.";
     }

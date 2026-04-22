@@ -2,6 +2,7 @@ package actions;
 
 import core.*;
 import math.*;
+import visuals.HighlightColors;
 import visuals.SpaceVisualizer;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
     @Override
     public String execute() {
         if (!isCalculated) {
-            KnnFunction<T> knnFunc = new KnnFunction<>("FULL", target, k);
+            KnnFunction<T> knnFunc = new KnnFunction<>(SpaceNames.FULL, target, k);
             neighbors = space.executeFunction(knnFunc, strategy);
 
             StringBuilder sb = new StringBuilder("Neighbors of '" + target + "':\n");
@@ -30,13 +31,13 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
                 sb.append(i + 1).append(". ").append(neighbors.get(i).getId())
                         .append(" (Distance: ").append(String.format("%.4f", neighbors.get(i).getDistance())).append(")\n");
             }
-            output = sb.toString() + "\n(Strategy: " + strategy.toString() + ")";
+            output = sb.toString() + "\n(Strategy: " + strategy.getName() + ")";
             isCalculated = true;
         }
 
         List<T> neighborIds = neighbors.stream().map(ItemDistance::getId).collect(Collectors.toList());
-        visualizer.highlightItems(List.of(target), "#007BFF");
-        visualizer.highlightItems(neighborIds, "#28A745");
+        visualizer.highlightItems(List.of(target), HighlightColors.PRIMARY);
+        visualizer.highlightItems(neighborIds, HighlightColors.SUCCESS);
 
         double maxDist = neighbors.isEmpty() ? 1.0 : neighbors.get(neighbors.size() - 1).getDistance();
         double minDist = neighbors.isEmpty() ? 0.0 : neighbors.get(0).getDistance();
@@ -47,7 +48,7 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
                 double normalized = 1.0 - ((neighbor.getDistance() - minDist) / (maxDist - minDist));
                 thickness = 1.0 + (normalized * 4.0);
             }
-            visualizer.drawLine(target, neighbor.getId(), "#FD7E14", thickness);
+            visualizer.drawLine(target, neighbor.getId(), HighlightColors.WARNING, thickness);
         }
 
         return output;
