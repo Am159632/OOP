@@ -1,14 +1,14 @@
 package actions;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
 
 public class HistoryManager<T> {
 
     /** Maximum number of actions retained in the undo stack. */
     private static final int MAX_HISTORY_SIZE = 50;
 
-    private final Stack<AppAction<T>> undoStack = new Stack<>();
-    private final Stack<AppAction<T>> redoStack = new Stack<>();
+    private final ArrayDeque<AppAction<T>> undoStack = new ArrayDeque<>();
+    private final ArrayDeque<AppAction<T>> redoStack = new ArrayDeque<>();
 
     public void addAction(AppAction<T> action) {
         if (!undoStack.isEmpty() && undoStack.peek().equals(action)) {
@@ -18,7 +18,8 @@ public class HistoryManager<T> {
         redoStack.clear();
 
         if (undoStack.size() > MAX_HISTORY_SIZE) {
-            undoStack.remove(0);
+            // Remove the oldest entry (bottom of the stack = last element in the deque)
+            undoStack.removeLast();
         }
     }
 
