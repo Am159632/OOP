@@ -35,6 +35,18 @@
     -fx-background-color: #27345c;
 }
 
+.menu-bar {
+    -fx-background-color: #1b2540;
+}
+
+.menu {
+    -fx-background-color: #1b2540;
+}
+
+.menu-item {
+    -fx-background-color: #1b2540;
+}
+
 .radio-button {
     -fx-text-fill: white;
 }
@@ -69,4 +81,15 @@
 
 .check-box {
     -fx-text-fill: white;
+}
+
+.top-strip {
+    -fx-background-color: #1b2540;
+    -fx-padding: 0;
+}
+
+.top-strip-menu {
+    -fx-background-color: #1b2540;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
 }

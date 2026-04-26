@@ -33,7 +33,7 @@ public class HistorySection<T> extends AbstractMenuSection {
         btnUndo.setOnAction(e -> {
             AppAction<T> action = history.undo();
             if (action != null) {
-                uiManager.getMultiVisualizer().clearHighlights();
+                uiManager.getActiveVisualizer().clearHighlights();
                 AppAction<T> prev = history.peekUndo();
                 txtConsole.setText(prev != null ? prev.execute() : "Reverted to clean space.");
             }
@@ -42,14 +42,14 @@ public class HistorySection<T> extends AbstractMenuSection {
         btnRedo.setOnAction(e -> {
             AppAction<T> action = history.redo();
             if (action != null) {
-                uiManager.getMultiVisualizer().clearHighlights();
+                uiManager.getActiveVisualizer().clearHighlights();
                 txtConsole.setText(action.execute());
             }
         });
 
         btnClear.setOnAction(e -> {
             history.clear();
-            uiManager.getMultiVisualizer().clearHighlights();
+            uiManager.getActiveVisualizer().clearHighlights();
             txtConsole.setText("History cleared. Space is clean.");
         });
 

@@ -72,10 +72,9 @@ public class PcaTopBar<T> {
             currentCombos.add(cb);
             pcaInputsBox.getChildren().add(cb);
         }
-        executePca();
     }
 
-    private void executePca() {
+    public void executePca() {
         try {
             String[] axes = currentCombos.stream()
                     .map(cb -> String.valueOf(cb.getValue()))

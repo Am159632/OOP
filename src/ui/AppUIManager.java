@@ -8,14 +8,13 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import visuals.AbstractSpaceVisualizer;
 import visuals.GUIVisualizer;
-import visuals.MultiSpaceVisualizer;
 
 import java.util.*;
 
 public class AppUIManager<T> {
     private BorderPane rootPane;
     private AbstractAnalyzableSpace<T> space;
-    private MultiSpaceVisualizer<T> multiVisualizer;
+    private AbstractSpaceVisualizer<T, ?> activeView;
     private StackPane centerViewPane;
     private TextArea txtConsole;
 
@@ -42,26 +41,30 @@ public class AppUIManager<T> {
         DistanceStrategy initialStrategy = this.strategies.isEmpty() ? null : this.strategies.get(0);
         this.commandManager = new CommandManager<>(commands, initialStrategy);
 
-        multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
-        centerViewPane = new StackPane(activeViews.get(0).getVisualNode());
+        if (activeViews == null || activeViews.isEmpty()) {
+            throw new IllegalArgumentException("At least one GUIVisualizer is required.");
+        }
+
+        AbstractSpaceVisualizer<T, ?> initialView = activeViews.getFirst();
+        activeView = initialView;
+        registerNodeClickHandlers(activeViews);
+
+        centerViewPane = new StackPane(activeView.getVisualNode());
         centerViewPane.setStyle("-fx-background-color: transparent;");
-        multiVisualizer.setOnNodeClicked(item -> {
-            SpaceCommand<T> activeCmd = commandManager.getActiveCommand();
-            if (activeCmd != null) activeCmd.onNodeClicked(item);
-        });
 
         txtConsole = new TextArea("System Ready...\n");
         txtConsole.setEditable(false);
         txtConsole.setWrapText(true);
         txtConsole.setStyle("-fx-font-family: monospace; -fx-font-size: 14px;");
 
-        ComboBox<GUIVisualizer<T>> viewSelector = buildViewSelector(activeViews);
+        ComboBox<GUIVisualizer<T>> viewSelector = buildViewSelector(activeViews, initialView);
         MenuBar topMenu = buildTopMenu();
         PcaTopBar<T> pcaTopBar = new PcaTopBar<>(this, txtConsole);
         configureViewSelector(viewSelector, pcaTopBar);
 
         HBox topContainer = new HBox(15);
         topContainer.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        topContainer.getStyleClass().add("top-strip");
         topContainer.getChildren().addAll(topMenu, new Label("  View:"), viewSelector, pcaTopBar.build());
         rootPane.setTop(topContainer);
 
@@ -71,11 +74,31 @@ public class AppUIManager<T> {
         VBox sideMenu = builder.build(txtConsole, viewSelector);
         rootPane.setRight(sideMenu);
 
-        pcaTopBar.updateDimensions(activeViews.get(0).getDimensions());
+        for (AbstractSpaceVisualizer<T, ?> view : activeViews) {
+            activeView = view;
+            pcaTopBar.updateDimensions(view.getDimensions());
+            pcaTopBar.executePca();
+        }
+        activeView = initialView;
+        centerViewPane.getChildren().setAll(initialView.getVisualNode());
+        pcaTopBar.updateDimensions(initialView.getDimensions());
     }
+
+    private void registerNodeClickHandlers(List<AbstractSpaceVisualizer<T, ?>> views) {
+        for (AbstractSpaceVisualizer<T, ?> view : views) {
+            view.setOnNodeClicked(item -> {
+                SpaceCommand<T> activeCmd = commandManager.getActiveCommand();
+                if (activeCmd != null) {
+                    activeCmd.onNodeClicked(item);
+                }
+            });
+        }
+    }
+
 
     private MenuBar buildTopMenu() {
         MenuBar topMenu = new MenuBar();
+        topMenu.getStyleClass().add("top-strip-menu");
         Menu fileMenu = new Menu("File");
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.setOnAction(e -> System.exit(0));
@@ -83,23 +106,25 @@ public class AppUIManager<T> {
 
         Menu viewMenu = new Menu("View");
         MenuItem clearVisualsItem = new MenuItem("Clear Screen");
-        clearVisualsItem.setOnAction(e -> multiVisualizer.clearHighlights());
+        clearVisualsItem.setOnAction(e -> activeView.clearSpace());
         viewMenu.getItems().add(clearVisualsItem);
 
         topMenu.getMenus().addAll(fileMenu, viewMenu);
         return topMenu;
     }
 
-    private ComboBox<GUIVisualizer<T>> buildViewSelector(List<AbstractSpaceVisualizer<T, ?>> activeViews) {
+    private ComboBox<GUIVisualizer<T>> buildViewSelector(List<AbstractSpaceVisualizer<T, ?>> activeViews,
+                                                         AbstractSpaceVisualizer<T, ?> initialView) {
         ComboBox<GUIVisualizer<T>> viewSelector = new ComboBox<>();
         viewSelector.getItems().addAll(activeViews);
-        viewSelector.setValue(activeViews.get(0));
+        viewSelector.setValue(initialView);
         return viewSelector;
     }
 
     private void configureViewSelector(ComboBox<GUIVisualizer<T>> viewSelector, PcaTopBar<T> pcaTopBar) {
         viewSelector.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
+                activeView = (AbstractSpaceVisualizer<T, ?>) newVal;
                 centerViewPane.getChildren().setAll(newVal.getVisualNode());
                 pcaTopBar.updateDimensions(newVal.getDimensions());
             }
@@ -125,15 +150,18 @@ public class AppUIManager<T> {
         }
 
         try {
-            multiVisualizer.clearHighlights();
-            String result = new PcaCommand<>(space, targetAxes).execute(multiVisualizer);
+            activeView.clearHighlights();
+            String result = new PcaCommand<>(space, targetAxes).execute(activeView);
             AppAction<T> lastFunc = history.peekUndo();
             if (lastFunc != null) {
                 result += "\n[Re-applied]: " + lastFunc.execute();
             }
             return result;
         } catch (Exception e) {
-            return "Error: Invalid PCA inputs.";
+            String details = (e.getMessage() == null || e.getMessage().isBlank())
+                    ? "Unknown cause"
+                    : e.getMessage();
+            return "Error: Invalid PCA inputs. " + details;
         }
     }
 
@@ -142,7 +170,7 @@ public class AppUIManager<T> {
     }
 
     public AppAction<T> generateActiveAction() {
-        return commandManager.generateActiveAction(multiVisualizer);
+        return commandManager.generateActiveAction(activeView);
     }
 
     public void setStrategy(DistanceStrategy s) {
@@ -151,7 +179,7 @@ public class AppUIManager<T> {
 
     public BorderPane getRoot() { return rootPane; }
     public StackPane getCenterViewPane() { return centerViewPane; }
-    public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
+    public AbstractSpaceVisualizer<T, ?> getActiveVisualizer() { return activeView; }
     public List<DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return commandManager.getAvailableCommands(); }
     public HistoryManager<T> getHistory() { return history; }

@@ -42,7 +42,7 @@ public class AnalysisSection<T> extends AbstractMenuSection {
             try {
                 AppAction<T> action = uiManager.generateActiveAction();
                 if (action != null) {
-                    uiManager.getMultiVisualizer().clearHighlights();
+                    uiManager.getActiveVisualizer().clearHighlights();
                     String res = action.execute();
                     txtConsole.setText(res);
                     history.addAction(action);

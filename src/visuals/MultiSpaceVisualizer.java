@@ -2,16 +2,27 @@ package visuals;
 
 import core.*;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MultiSpaceVisualizer<T> implements SpaceVisualizer<T> {
 
-    private List<SpaceVisualizer<T>> visualizers;
+    private final List<SpaceVisualizer<T>> visualizers = new ArrayList<>();
 
-    public MultiSpaceVisualizer(List<SpaceVisualizer<T>> visualizers) {
-        this.visualizers = new ArrayList<>(visualizers);
+    public MultiSpaceVisualizer(List<SpaceVisualizer<T>> children) {
+        for (SpaceVisualizer<T> child : children) {
+            if (child instanceof MultiSpaceVisualizer<?> multi) {
+                MultiSpaceVisualizer<T> nested = (MultiSpaceVisualizer<T>) multi;
+                visualizers.addAll(nested.visualizers);
+            } else {
+                visualizers.add(child);
+            }
+        }
+    }
+
+    public List<SpaceVisualizer<T>> getChildren() {
+        return visualizers;
     }
 
     @Override
@@ -32,11 +43,6 @@ public class MultiSpaceVisualizer<T> implements SpaceVisualizer<T> {
     @Override
     public void clearSpace() {
         for (SpaceVisualizer<T> vis : visualizers) vis.clearSpace();
-    }
-
-    @Override
-    public void clearScene() {
-        for (SpaceVisualizer<T> vis : visualizers) vis.clearScene();
     }
 
     @Override
