@@ -27,10 +27,10 @@ public class CentroidAction<T> extends AbstractAnalysisAction<T> {
         }
 
         if (result != null && !result.isEmpty()) {
-            visualizer.highlightItems(group, "#007BFF");
+            visualizer.highlightItems(group, "#2A9D8F");
 
             List<T> closestIds = result.stream().map(ItemDistance::getId).collect(Collectors.toList());
-            visualizer.highlightItems(closestIds, "#28A745");
+            visualizer.highlightItems(closestIds, "#8B5CF6");
 
             StringBuilder sb = new StringBuilder("Centroid calculated. Top " + k + " closest:\n");
             for (ItemDistance<T> res : result) {

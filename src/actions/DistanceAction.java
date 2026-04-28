@@ -25,8 +25,9 @@ public class DistanceAction<T> extends AbstractAnalysisAction<T> {
             isCalculated = true;
         }
 
-        visualizer.highlightItems(List.of(w1, w2), "#007BFF");
-        visualizer.drawLine(w1, w2, "#FD7E14", 3.0);
+        visualizer.highlightItems(List.of(w1), "#2A9D8F");
+        visualizer.highlightItems(List.of(w2), "#E76F51");
+        visualizer.drawLine(w1, w2, "#4F46E5", 3.0);
 
         return "Distance between '" + w1 + "' and '" + w2 + "': " + String.format("%.5f", dist) + " (Strategy: " + strategy.toString() + ")";
     }

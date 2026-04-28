@@ -35,8 +35,8 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
         }
 
         List<T> neighborIds = neighbors.stream().map(ItemDistance::getId).collect(Collectors.toList());
-        visualizer.highlightItems(List.of(target), "#007BFF");
-        visualizer.highlightItems(neighborIds, "#28A745");
+        visualizer.highlightItems(List.of(target), "#2A9D8F");
+        visualizer.highlightItems(neighborIds, "#8B5CF6");
 
         double maxDist = neighbors.isEmpty() ? 1.0 : neighbors.get(neighbors.size() - 1).getDistance();
         double minDist = neighbors.isEmpty() ? 0.0 : neighbors.get(0).getDistance();
@@ -47,7 +47,7 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
                 double normalized = 1.0 - ((neighbor.getDistance() - minDist) / (maxDist - minDist));
                 thickness = 1.0 + (normalized * 4.0);
             }
-            visualizer.drawLine(target, neighbor.getId(), "#FD7E14", thickness);
+            visualizer.drawLine(target, neighbor.getId(), "#4F46E5", thickness);
         }
 
         return output;

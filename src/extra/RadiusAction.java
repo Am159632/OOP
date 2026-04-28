@@ -37,11 +37,11 @@ public class RadiusAction<T> extends AbstractAnalysisAction<T> {
             isCalculated = true;
         }
 
-        visualizer.highlightItems(List.of(target), "#007BFF");
-        visualizer.highlightItems(foundItems, "#28A745");
+        visualizer.highlightItems(List.of(target), "#2A9D8F");
+        visualizer.highlightItems(foundItems, "#8B5CF6");
 
         for (T item : foundItems) {
-            visualizer.drawLine(target, item, "#A9A9A9", 1.5);
+            visualizer.drawLine(target, item, "#4F46E5", 1.5);
         }
 
         StringBuilder sb = new StringBuilder();

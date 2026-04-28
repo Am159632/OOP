@@ -29,12 +29,12 @@ public class CustomAction<T> extends AbstractAnalysisAction<T> {
             List<T> positives = terms.stream().filter(t -> t.isAdd).map(t -> t.item).collect(Collectors.toList());
             List<T> negatives = terms.stream().filter(t -> !t.isAdd).map(t -> t.item).collect(Collectors.toList());
 
-            visualizer.highlightItems(positives, "#007BFF");
-            visualizer.highlightItems(negatives, "#DC3545");
-            visualizer.highlightItems(List.of(result), "#28A745");
+            visualizer.highlightItems(positives, "#2A9D8F");
+            visualizer.highlightItems(negatives, "#E76F51");
+            visualizer.highlightItems(List.of(result), "#8B5CF6");
 
-            for (T p : positives) visualizer.drawLine(p, result, "#007BFF", 1.5);
-            for (T n : negatives) visualizer.drawLine(n, result, "#DC3545", 1.5);
+            for (T p : positives) visualizer.drawLine(p, result, "#4F46E5", 1.5);
+            for (T n : negatives) visualizer.drawLine(n, result, "#4F46E5", 1.5);
 
             StringBuilder sb = new StringBuilder("Equation: ");
             for (int i = 0; i < terms.size(); i++) {

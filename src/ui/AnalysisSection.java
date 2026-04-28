@@ -24,11 +24,12 @@ public class AnalysisSection<T> extends AbstractMenuSection {
     protected void buildContent(VBox container) {
         List<String> commandNames = new ArrayList<>();
         uiManager.getAvailableCommands().forEach(cmd -> commandNames.add(cmd.getName()));
+        commandNames.sort(String::compareTo);
 
         actionBox = UIUtils.createSearchableComboBox(commandNames);
 
         if (!uiManager.getAvailableCommands().isEmpty()) {
-            actionBox.setValue(uiManager.getAvailableCommands().get(0).getName());
+            actionBox.setValue(commandNames.get(0));
         }
         actionBox.setMaxWidth(Double.MAX_VALUE);
 
@@ -42,7 +43,7 @@ public class AnalysisSection<T> extends AbstractMenuSection {
             try {
                 AppAction<T> action = uiManager.generateActiveAction();
                 if (action != null) {
-                    uiManager.getActiveVisualizer().clearHighlights();
+                    if (uiManager.getMultiVisualizer() != null) uiManager.getMultiVisualizer().clearHighlights();
                     String res = action.execute();
                     txtConsole.setText(res);
                     history.addAction(action);

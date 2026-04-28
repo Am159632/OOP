@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import visuals.AbstractSpaceVisualizer;
 import visuals.GUIVisualizer;
+import visuals.MultiSpaceVisualizer;
 
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class AppUIManager<T> {
     private BorderPane rootPane;
     private AbstractAnalyzableSpace<T> space;
     private AbstractSpaceVisualizer<T, ?> activeView;
+    private MultiSpaceVisualizer<T> multiVisualizer;
     private StackPane centerViewPane;
     private TextArea txtConsole;
 
@@ -34,6 +36,7 @@ public class AppUIManager<T> {
         this.rootPane = new BorderPane();
         this.history = new HistoryManager<>();
         this.enableZoom = enableZoom;
+        this.multiVisualizer = new MultiSpaceVisualizer<>(new ArrayList<>(activeViews));
 
         this.strategies = (providedStrategies != null) ? providedStrategies : new ArrayList<>();
         List<SpaceCommand<T>> commands = (providedCommands != null) ? providedCommands : new ArrayList<>();
@@ -127,6 +130,7 @@ public class AppUIManager<T> {
                 activeView = (AbstractSpaceVisualizer<T, ?>) newVal;
                 centerViewPane.getChildren().setAll(newVal.getVisualNode());
                 pcaTopBar.updateDimensions(newVal.getDimensions());
+
             }
         });
     }
@@ -152,10 +156,12 @@ public class AppUIManager<T> {
         try {
             activeView.clearHighlights();
             String result = new PcaCommand<>(space, targetAxes).execute(activeView);
+
             AppAction<T> lastFunc = history.peekUndo();
             if (lastFunc != null) {
                 result += "\n[Re-applied]: " + lastFunc.execute();
             }
+
             return result;
         } catch (Exception e) {
             String details = (e.getMessage() == null || e.getMessage().isBlank())
@@ -170,7 +176,7 @@ public class AppUIManager<T> {
     }
 
     public AppAction<T> generateActiveAction() {
-        return commandManager.generateActiveAction(activeView);
+        return commandManager.generateActiveAction(multiVisualizer);
     }
 
     public void setStrategy(DistanceStrategy s) {
@@ -178,8 +184,8 @@ public class AppUIManager<T> {
     }
 
     public BorderPane getRoot() { return rootPane; }
-    public StackPane getCenterViewPane() { return centerViewPane; }
     public AbstractSpaceVisualizer<T, ?> getActiveVisualizer() { return activeView; }
+    public MultiSpaceVisualizer<T> getMultiVisualizer() { return multiVisualizer; }
     public List<DistanceStrategy> getStrategies() { return strategies; }
     public List<SpaceCommand<T>> getAvailableCommands() { return commandManager.getAvailableCommands(); }
     public HistoryManager<T> getHistory() { return history; }
