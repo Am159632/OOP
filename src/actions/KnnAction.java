@@ -21,6 +21,10 @@ public class KnnAction<T> extends AbstractAnalysisAction<T> {
 
     @Override
     public String execute() {
+        if (k <= 0) {
+            return "Error: K must be greater than 0.";
+        }
+
         if (!isCalculated) {
             KnnFunction<T> knnFunc = new KnnFunction<>("FULL", target, k);
             neighbors = space.executeFunction(knnFunc, strategy);

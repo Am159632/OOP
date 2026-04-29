@@ -20,6 +20,10 @@ public class CentroidAction<T> extends AbstractAnalysisAction<T> {
 
     @Override
     public String execute() {
+        if (k <= 0) {
+            return "Error: K must be greater than 0.";
+        }
+
         if (!isCalculated) {
             SpaceFunction<T, List<ItemDistance<T>>> centroidFunc = new CentroidFunction<>("FULL", group, k);
             result = space.executeFunction(centroidFunc, strategy);

@@ -46,7 +46,9 @@ public class AnalysisSection<T> extends AbstractMenuSection {
                     if (uiManager.getMultiVisualizer() != null) uiManager.getMultiVisualizer().clearHighlights();
                     String res = action.execute();
                     txtConsole.setText(res);
-                    history.addAction(action);
+                    if (res != null && !res.startsWith("Error:")) {
+                        history.addAction(action);
+                    }
                 }
             } catch (Exception ex) {
                 txtConsole.setText("Error executing function.");

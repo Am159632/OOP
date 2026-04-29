@@ -91,6 +91,8 @@ public abstract class AbstractSpaceVisualizer<T, V extends Node> implements Spac
 
     @Override
     public void highlightItems(List<T> items, String colorHex) {
+        if (items == null || items.isEmpty()) return;
+
         for (T item : items) {
             V shape = nodesMap.get(item);
             if (shape != null) {

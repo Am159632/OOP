@@ -21,6 +21,13 @@ public class SemanticLineAction<T> extends AbstractAnalysisAction<T> {
 
     @Override
     public String execute() {
+        if (start == null || end == null) {
+            return "Error: Start and end items are required.";
+        }
+        if (start.equals(end)) {
+            return "Error: Start and end items must be different.";
+        }
+
         if (!isCalculated) {
             ProjectionFunction<T> func = new ProjectionFunction<>("FULL", start, end);
             List<ItemDistance<T>> projections = space.executeFunction(func, strategy);
